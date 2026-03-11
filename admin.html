@@ -1,0 +1,2105 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>VaqueroApp Admin</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Admin 🐄">
+<meta name="theme-color" content="#0a0f07">
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230a0f07'/><text y='.9em' font-size='80' x='10'>🐄</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0a0f07;
+  --bg2:#111808;
+  --bg3:#182010;
+  --card:#1a2412;
+  --border:rgba(184,221,60,.12);
+  --border2:rgba(184,221,60,.2);
+  --accent:#b8dd3c;
+  --accent2:#d4f54e;
+  --verde:#2d6a00;
+  --text:#e8f0d0;
+  --text2:#a8c060;
+  --muted:#5a7a30;
+  --red:#ff5a5a;
+  --green:#4ec87a;
+  --yellow:#ffb800;
+  --blue:#60a8ff;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+
+/* LOGIN */
+#login-screen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:100;padding:20px;}
+.login-box{background:var(--card);border:1px solid var(--border2);border-radius:24px;padding:40px;max-width:380px;width:100%;text-align:center;}
+.login-logo{font-size:48px;margin-bottom:8px;}
+.login-title{font-family:'Playfair Display',serif;font-size:24px;color:var(--accent);margin-bottom:4px;}
+.login-sub{font-size:13px;color:var(--muted);margin-bottom:28px;}
+.admin-badge{display:inline-block;background:rgba(255,90,90,.15);border:1px solid rgba(255,90,90,.3);color:var(--red);font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:4px 12px;border-radius:25px;margin-bottom:20px;}
+.inp{width:100%;background:var(--bg2);border:1.5px solid var(--border2);border-radius:10px;color:var(--text);padding:12px 14px;font-size:14px;font-family:'DM Sans',sans-serif;outline:none;transition:border-color .2s;margin-bottom:12px;}
+.inp:focus{border-color:var(--accent);}
+.btn-login{width:100%;padding:14px;background:var(--accent);color:var(--bg);border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;}
+.btn-login:hover{background:var(--accent2);}
+.login-error{color:var(--red);font-size:13px;margin-top:10px;display:none;}
+
+/* LAYOUT */
+#app{display:none;}
+.sidebar{position:fixed;left:0;top:0;bottom:0;width:220px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:20px 0;z-index:50;}
+.sb-logo{padding:0 20px 20px;border-bottom:1px solid var(--border);}
+.sb-logo-title{font-family:'Playfair Display',serif;font-size:18px;color:var(--accent);display:flex;align-items:center;gap:8px;}
+.sb-logo-sub{font-size:10px;color:var(--muted);margin-top:2px;text-transform:uppercase;letter-spacing:1.5px;}
+.sb-nav{flex:1;padding:16px 10px;display:flex;flex-direction:column;gap:4px;overflow-y:auto;}
+.sb-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;cursor:pointer;transition:all .2s;font-size:13px;font-weight:500;color:var(--muted);}
+.sb-item:hover{background:rgba(184,221,60,.08);color:var(--text);}
+.sb-item.active{background:rgba(184,221,60,.12);color:var(--accent);font-weight:600;}
+.sb-item .ico{font-size:16px;width:20px;text-align:center;}
+.sb-section{font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:2px;padding:12px 12px 4px;}
+.sb-footer{padding:16px;border-top:1px solid var(--border);}
+.sb-user{font-size:11px;color:var(--muted);}
+.sb-logout{background:none;border:1px solid rgba(255,90,90,.3);color:var(--red);padding:8px 14px;border-radius:8px;font-size:12px;cursor:pointer;width:100%;margin-top:8px;font-family:'DM Sans',sans-serif;transition:all .2s;}
+.sb-logout:hover{background:rgba(255,90,90,.1);}
+
+.main{margin-left:220px;padding:28px;min-height:100vh;}
+.page{display:none;}
+.page.active{display:block;}
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;}
+.page-title{font-family:'Playfair Display',serif;font-size:26px;color:var(--text);}
+.page-title em{color:var(--accent);font-style:normal;}
+
+/* STATS GRID */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px;}
+.stat-val{font-family:'Playfair Display',serif;font-size:36px;font-weight:700;line-height:1;}
+.stat-lbl{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:6px;}
+.stat-sub{font-size:12px;color:var(--text2);margin-top:4px;}
+
+/* TABLE */
+.tcard{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:20px;}
+.tcard-head{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+.tcard-title{font-size:14px;font-weight:700;color:var(--text);}
+.search-bar{background:var(--bg2);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:8px 12px;font-size:13px;font-family:'DM Sans',sans-serif;outline:none;width:220px;}
+.search-bar:focus{border-color:var(--accent);}
+table{width:100%;border-collapse:collapse;}
+th{text-align:left;padding:10px 16px;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid var(--border);background:var(--bg3);}
+td{padding:12px 16px;font-size:13px;color:var(--text2);border-bottom:1px solid rgba(184,221,60,.05);}
+tr:last-child td{border:none;}
+tr:hover td{background:rgba(184,221,60,.03);}
+
+/* BADGES */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;}
+.badge-activo{background:rgba(78,200,122,.15);color:var(--green);}
+.badge-trial{background:rgba(96,168,255,.15);color:var(--blue);}
+.badge-vencido{background:rgba(255,90,90,.15);color:var(--red);}
+.badge-pendiente{background:rgba(255,184,0,.15);color:var(--yellow);}
+.badge-suspendido{background:rgba(255,90,90,.1);color:var(--red);}
+.badge-premium{background:rgba(184,221,60,.15);color:var(--accent);}
+.badge-estandar{background:rgba(45,106,0,.2);color:#7cc84a;}
+.badge-basico{background:rgba(45,106,0,.1);color:var(--muted);}
+
+/* BUTTONS */
+.btn{padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;font-family:'DM Sans',sans-serif;border:none;}
+.btn-sm{padding:5px 12px;font-size:11px;}
+.btn-primary{background:var(--accent);color:var(--bg);}
+.btn-primary:hover{background:var(--accent2);}
+.btn-ghost{background:var(--bg2);color:var(--text2);border:1px solid var(--border2);}
+.btn-ghost:hover{border-color:var(--accent);color:var(--accent);}
+.btn-danger{background:rgba(255,90,90,.15);color:var(--red);border:1px solid rgba(255,90,90,.3);}
+.btn-danger:hover{background:rgba(255,90,90,.25);}
+.btn-success{background:rgba(78,200,122,.15);color:var(--green);border:1px solid rgba(78,200,122,.3);}
+.btn-success:hover{background:rgba(78,200,122,.25);}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px);}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--card);border:1px solid var(--border2);border-radius:20px;padding:28px;max-width:480px;width:100%;animation:modalIn .25s ease;}
+@keyframes modalIn{from{transform:scale(.92);opacity:0;}to{transform:scale(1);opacity:1;}}
+.modal-title{font-family:'Playfair Display',serif;font-size:20px;color:var(--text);margin-bottom:20px;}
+.form-group{margin-bottom:14px;}
+.form-label{display:block;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;}
+.form-select{width:100%;background:var(--bg2);border:1.5px solid var(--border2);border-radius:10px;color:var(--text);padding:10px 14px;font-size:14px;font-family:'DM Sans',sans-serif;outline:none;}
+.form-select:focus{border-color:var(--accent);}
+.modal-foot{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;}
+
+/* TOAST */
+#toast{position:fixed;bottom:24px;right:24px;background:var(--card);border:1px solid var(--border2);border-radius:12px;padding:12px 20px;font-size:14px;color:var(--text);z-index:999;transform:translateY(80px);opacity:0;transition:all .3s;max-width:320px;}
+#toast.show{transform:translateY(0);opacity:1;}
+
+/* LOADING */
+.loading{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:13px;padding:20px;}
+.spinner{width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .6s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* EMPTY */
+.empty-state{text-align:center;padding:48px 20px;color:var(--muted);}
+.empty-icon{font-size:48px;margin-bottom:12px;}
+
+/* FILTERS */
+.filters{display:flex;gap:8px;flex-wrap:wrap;padding:12px 20px;border-bottom:1px solid var(--border);}
+.filter-btn{background:var(--bg2);border:1px solid var(--border);border-radius:20px;color:var(--muted);padding:5px 14px;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;font-family:'DM Sans',sans-serif;}
+.filter-btn.active{background:var(--accent);color:var(--bg);border-color:var(--accent);}
+
+/* CHART BAR */
+.bar-chart{padding:16px 20px;}
+.bar-row{display:flex;align-items:center;gap:12px;margin-bottom:10px;}
+.bar-label{font-size:12px;color:var(--text2);width:80px;flex-shrink:0;}
+.bar-track{flex:1;height:8px;background:var(--bg3);border-radius:4px;overflow:hidden;}
+.bar-fill{height:100%;background:linear-gradient(90deg,var(--verde),var(--accent));border-radius:4px;transition:width .6s ease;}
+.bar-val{font-size:12px;color:var(--accent);font-weight:700;width:40px;text-align:right;}
+
+/* AVATAR */
+.avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--verde),var(--accent));display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--bg);flex-shrink:0;}
+
+/* ── TABLET ── */
+@media(max-width:1024px){
+  .stats-grid{grid-template-columns:repeat(2,1fr);}
+  .sidebar{width:64px;}
+  .sb-item span,.sb-logo-title,.sb-logo-sub,.sb-section,.sb-user{display:none;}
+  .main{margin-left:64px;}
+}
+
+/* ── MOBILE ── */
+@media(max-width:640px){
+  /* Sidebar se convierte en bottom nav */
+  .sidebar{
+    position:fixed;left:0;right:0;bottom:0;top:auto;
+    width:100%;height:60px;
+    flex-direction:row;
+    padding:0;
+    border-right:none;
+    border-top:1px solid var(--border);
+    z-index:100;
+  }
+  .sb-logo{display:none;}
+  .sb-nav{
+    flex-direction:row;
+    padding:0;
+    overflow-x:auto;
+    overflow-y:hidden;
+    gap:0;
+    align-items:stretch;
+    width:100%;
+  }
+  .sb-section{display:none;}
+  .sb-item{
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    padding:6px 4px;
+    border-radius:0;
+    min-width:56px;
+    gap:2px;
+    font-size:9px;
+    flex:1;
+  }
+  .sb-item span:not(.ico){
+    display:block !important;
+    font-size:9px;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    max-width:52px;
+    text-align:center;
+  }
+  .sb-item .ico{font-size:18px;}
+  .sb-footer{display:none;}
+
+  /* Main content above bottom nav */
+  .main{
+    margin-left:0;
+    padding:16px 12px 76px;
+  }
+
+  /* Stats: 2 cols on mobile */
+  .stats-grid{grid-template-columns:repeat(2,1fr);gap:10px;}
+  .stat-card{padding:14px;}
+  .stat-val{font-size:26px;}
+
+  /* Tables scroll horizontally */
+  .tcard{overflow-x:auto;}
+  table{min-width:480px;}
+
+  /* Topbar stack */
+  .topbar{flex-direction:column;align-items:flex-start;gap:8px;margin-bottom:16px;}
+  .search-bar{width:100%;}
+  .page-title{font-size:20px;}
+
+  /* Modals full screen */
+  .modal-overlay{padding:0;align-items:flex-end;}
+  .modal{
+    border-radius:20px 20px 0 0;
+    max-width:100%;
+    width:100%;
+    max-height:92vh;
+    overflow-y:auto;
+    padding:24px 20px;
+  }
+
+  /* Dashboard two-col to single */
+  .dash-grid{
+    grid-template-columns:1fr !important;
+  }
+
+  /* Filters scroll */
+  .filters{overflow-x:auto;flex-wrap:nowrap;padding:10px 14px;}
+  .filter-btn{white-space:nowrap;flex-shrink:0;}
+
+  /* Login box */
+  .login-box{padding:28px 20px;}
+
+  /* Buttons full width on mobile */
+  .modal-foot{flex-direction:column;}
+  .modal-foot .btn{width:100%;}
+  #badge-pagos{position:absolute;top:4px;right:4px;font-size:8px !important;padding:1px 4px !important;}
+
+  /* Toast bottom adjusted */
+  #toast{bottom:70px;right:12px;left:12px;text-align:center;}
+}
+
+/* ── VERY SMALL ── */
+@media(max-width:360px){
+  .sb-item span:not(.ico){display:none !important;}
+  .sb-item{min-width:44px;}
+  .stats-grid{grid-template-columns:1fr 1fr;gap:8px;}
+}
+
+/* MOBILE BOTTOM NAV */
+.mobile-nav{
+  display:none;
+  position:fixed;bottom:0;left:0;right:0;
+  height:calc(64px + env(safe-area-inset-bottom));
+  padding-bottom:env(safe-area-inset-bottom);
+  background:var(--bg2);
+  border-top:1px solid var(--border2);
+  z-index:200;
+  align-items:stretch;
+}
+.mobile-nav-item{
+  flex:1;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  gap:3px;cursor:pointer;
+  color:var(--muted);transition:color .2s;
+  position:relative;padding:8px 2px;
+  font-family:'DM Sans',sans-serif;
+  border:none;background:none;
+  -webkit-tap-highlight-color:transparent;
+}
+.mobile-nav-item.active{color:var(--accent);}
+.mobile-nav-item .m-ico{font-size:20px;line-height:1;}
+.mobile-nav-item .m-lbl{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;}
+.mobile-nav-badge{
+  position:absolute;top:6px;right:calc(50% - 14px);
+  background:var(--red);color:#fff;
+  border-radius:8px;font-size:8px;font-weight:700;
+  padding:1px 5px;min-width:14px;text-align:center;
+  display:none;
+}
+
+#pwa-banner{
+  display:none;position:fixed;top:0;left:0;right:0;
+  background:linear-gradient(135deg,var(--accent),#7ab80e);
+  color:#000;padding:10px 16px;
+  align-items:center;gap:10px;z-index:999;
+  font-size:13px;font-weight:600;
+}
+#pwa-banner button{
+  background:#000;color:var(--accent);border:none;
+  border-radius:8px;padding:6px 14px;font-size:12px;
+  font-weight:700;cursor:pointer;margin-left:auto;white-space:nowrap;
+}
+.ios-install-tip{
+  display:none;
+  background:var(--bg2);border:1px solid var(--border2);
+  border-radius:12px;padding:12px 16px;margin:12px;
+  font-size:12px;color:var(--text);text-align:center;
+}
+
+.graf-bar-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.graf-bar-lbl{font-size:12px;font-weight:600;color:var(--text2);width:70px;flex-shrink:0;text-align:right}
+.graf-bar-track{flex:1;height:28px;background:var(--bg3);border-radius:6px;overflow:hidden}
+.graf-bar-fill{height:100%;border-radius:6px;transition:width .6s ease;display:flex;align-items:center;padding-left:8px}
+.graf-bar-fill span{font-size:11px;font-weight:700;color:#0b0e09;white-space:nowrap}
+.graf-bar-val{font-size:12px;font-weight:700;color:var(--green);width:55px;flex-shrink:0}
+.graf-donut-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.graf-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.graf-donut-lbl{font-size:12px;color:var(--text2);flex:1}
+.graf-donut-val{font-size:12px;font-weight:700;color:var(--text)}
+.alerta-card{background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:14px 16px;margin-bottom:10px;border-left:3px solid var(--yellow)}
+.alerta-card.critica{border-left-color:var(--red)}
+.alerta-card.vencida{border-left-color:var(--red);opacity:.85}
+.alerta-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.alerta-dias{font-size:22px;font-weight:900;line-height:1}
+.alerta-dias.urgente{color:var(--red)}
+.alerta-dias.pronto{color:var(--yellow)}
+.alerta-dias.normal{color:var(--accent)}
+.alerta-dias.vencido{color:var(--red)}
+.alerta-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:8px}
+.alerta-item{background:var(--bg3);border-radius:8px;padding:7px 10px;text-align:center}
+.alerta-item-lbl{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px}
+.alerta-item-val{font-size:12px;font-weight:700;color:var(--text)}
+.cli-det-sec{background:var(--bg3);border-radius:10px;padding:12px 14px;margin-bottom:10px}
+.cli-det-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);margin-bottom:10px}
+.cli-det-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.cli-det-field{display:flex;flex-direction:column;gap:2px}
+.cli-det-lbl{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+.cli-det-val{font-size:13px;font-weight:600;color:var(--text)}
+@media(max-width:600px){
+  .alerta-grid{grid-template-columns:1fr 1fr}
+  .cli-det-grid{grid-template-columns:1fr}
+}
+
+  /* ── CLIENTE VIEWER ── */
+  .cv-tab{background:none;border:none;border-bottom:3px solid transparent;padding:12px 18px;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;white-space:nowrap;transition:all .15s;font-family:inherit;}
+  .cv-tab:hover{color:var(--text2);background:rgba(184,221,60,.05);}
+  .cv-tab.active{color:var(--accent);border-bottom-color:var(--accent);}
+  .cv-section-title{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin:20px 0 10px;}
+  .cv-section-title:first-child{margin-top:0;}
+  .cv-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-bottom:20px;}
+  .cv-kpi{background:var(--card);border:1px solid var(--border2);border-radius:14px;padding:14px 16px;}
+  .cv-kpi-v{font-size:26px;font-weight:800;color:var(--accent);}
+  .cv-kpi-l{font-size:11px;color:var(--muted);margin-top:3px;text-transform:uppercase;letter-spacing:.8px;}
+  .cv-table{width:100%;border-collapse:collapse;font-size:13px;}
+  .cv-table th{text-align:left;padding:8px 10px;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid var(--border2);}
+  .cv-table td{padding:10px;border-bottom:1px solid var(--border2);color:var(--text2);}
+  .cv-table tr:last-child td{border-bottom:none;}
+  .cv-table tr:hover td{background:rgba(184,221,60,.04);}
+  .cv-empty{text-align:center;padding:40px 20px;color:var(--muted);font-size:13px;}
+  .cv-card{background:var(--card);border:1px solid var(--border2);border-radius:16px;overflow:hidden;margin-bottom:16px;}
+  .cv-card-head{padding:14px 16px;border-bottom:1px solid var(--border2);font-size:13px;font-weight:700;color:var(--text);}
+  .cv-card-body{padding:4px 0;}
+  .cv-info-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .cv-info-field{background:var(--card);border:1px solid var(--border2);border-radius:12px;padding:12px 14px;}
+  .cv-info-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px;}
+  .cv-info-val{font-size:14px;font-weight:700;color:var(--text);}
+  @media(max-width:600px){
+    .cv-info-grid{grid-template-columns:1fr;}
+    .cv-grid{grid-template-columns:repeat(2,1fr);}
+    #cv-btn-renovar,#cv-btn-editar{font-size:11px;padding:6px 10px;}
+    .cv-tab{padding:10px 13px;font-size:12px;}
+    #cv-header-badges{display:none;}
+  }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+
+<div id="pwa-banner">
+  <span>🐄 Instalar VaqueroApp Admin</span>
+  <button onclick="installPWA()">Instalar</button>
+  <button onclick="document.getElementById('pwa-banner').style.display='none'" style="background:transparent;color:#000;font-size:18px;padding:4px 8px">×</button>
+</div>
+
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">🐄</div>
+    <h1 class="login-title">VaqueroApp Admin</h1>
+    <p class="login-sub">Panel de administración</p>
+    <div class="admin-badge">🔐 Acceso restringido</div>
+    <input class="inp" type="email" id="admin-email" placeholder="Usuario" autocomplete="email">
+    <input class="inp" type="password" id="admin-pass" placeholder="Contraseña" onkeydown="if(event.key==='Enter')doAdminLogin()">
+    <button class="btn-login" onclick="doAdminLogin()">Ingresar al panel →</button>
+    <div class="login-error" id="login-error"></div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sb-logo">
+      <div class="sb-logo-title">🐄 <span>Admin</span></div>
+      <div class="sb-logo-sub">VaqueroApp</div>
+    </div>
+    <div class="sb-nav">
+      <div class="sb-section">Principal</div>
+      <div class="sb-item active" onclick="goAdmin('dashboard')"><span class="ico">📊</span><span>Dashboard</span></div>
+      <div class="sb-section">Clientes</div>
+      <div class="sb-item" onclick="goAdmin('clientes')"><span class="ico">👥</span><span>Clientes</span></div>
+      <div class="sb-item" onclick="goAdmin('suscripciones')"><span class="ico">💳</span><span>Planes</span></div>
+      <div class="sb-item" style="position:relative" onclick="goAdmin('pagos')"><span class="ico">💰</span><span>Pagos</span><span id="badge-pagos" style="background:var(--red);color:#fff;border-radius:10px;font-size:9px;font-weight:700;padding:2px 6px;margin-left:auto;display:none">0</span></div>
+      <div class="sb-section">Reportes</div>
+      <div class="sb-item" onclick="goAdmin('ingresos')"><span class="ico">📈</span><span>Ingresos</span></div>
+      <div class="sb-item" onclick="goAdmin('graficas')"><span class="ico">📊</span><span>Gráficas</span></div>
+      <div class="sb-item" style="position:relative" onclick="goAdmin('alertas')"><span class="ico">🔔</span><span>Alertas</span><span id="badge-alertas" style="background:var(--red);color:#fff;border-radius:10px;font-size:9px;font-weight:700;padding:2px 6px;margin-left:auto;display:none">0</span></div>
+    </div>
+    <div class="sb-footer">
+      <div class="sb-user" id="admin-user-email"></div>
+      <button class="sb-logout" onclick="doAdminLogout()">🚪 Cerrar sesión</button>
+    </div>
+
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- DASHBOARD -->
+    <div id="page-dashboard" class="page active">
+      <div class="topbar">
+        <div class="page-title">📊 <em>Dashboard</em></div>
+        <button class="btn btn-ghost btn-sm" onclick="loadDashboard()">🔄 Actualizar</button>
+      </div>
+      <div class="stats-grid" id="dash-stats">
+        <div class="stat-card"><div class="loading"><div class="spinner"></div>Cargando...</div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px" class="dash-grid">
+        <div class="tcard">
+          <div class="tcard-head"><div class="tcard-title">📊 Clientes por plan</div></div>
+          <div class="bar-chart" id="dash-planes"></div>
+        </div>
+        <div class="tcard">
+          <div class="tcard-head"><div class="tcard-title">🕐 Últimos registros</div></div>
+          <div id="dash-recientes" style="padding:10px"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CLIENTES -->
+    <div id="page-clientes" class="page">
+      <div class="topbar">
+        <div class="page-title">👥 <em>Clientes</em></div>
+        <div style="display:flex;gap:8px;align-items:center;width:100%"><input class="search-bar" type="text" placeholder="🔍 Buscar cliente..." oninput="filtrarClientes(this.value)" id="search-clientes" style="flex:1"><button class="btn btn-ghost btn-sm" onclick="exportarClientesCSV()" style="white-space:nowrap">📤 CSV</button></div>
+      </div>
+      <div class="tcard">
+        <div class="filters" id="filtros-clientes">
+          <button class="filter-btn active" onclick="setFiltroClientes('todos',this)">Todos</button>
+          <button class="filter-btn" onclick="setFiltroClientes('activo',this)">Activos</button>
+          <button class="filter-btn" onclick="setFiltroClientes('trial',this)">Trial</button>
+          <button class="filter-btn" onclick="setFiltroClientes('vencido',this)">Vencidos</button>
+        </div>
+        <div id="tabla-clientes"><div class="loading"><div class="spinner"></div>Cargando clientes...</div></div>
+      </div>
+    </div>
+
+    <!-- SUSCRIPCIONES -->
+    <div id="page-suscripciones" class="page">
+      <div class="topbar">
+        <div class="page-title">💳 <em>Suscripciones</em></div>
+        <button class="btn btn-primary btn-sm" onclick="openModalNuevaSus()">+ Nueva suscripción</button>
+      </div>
+      <div class="tcard">
+        <div class="filters">
+          <button class="filter-btn active" onclick="setFiltroSus('todos',this)">Todas</button>
+          <button class="filter-btn" onclick="setFiltroSus('activo',this)">Activas</button>
+          <button class="filter-btn" onclick="setFiltroSus('vencido',this)">Vencidas</button>
+          <button class="filter-btn" onclick="setFiltroSus('trial',this)">Trial</button>
+        </div>
+        <div id="tabla-suscripciones"><div class="loading"><div class="spinner"></div>Cargando...</div></div>
+      </div>
+    </div>
+
+    <!-- PAGOS PENDIENTES -->
+    <div id="page-pagos" class="page">
+      <div class="topbar">
+        <div class="page-title">💰 <em>Pagos pendientes</em></div>
+        <button class="btn btn-ghost btn-sm" onclick="loadPagos()">🔄 Actualizar</button>
+      </div>
+      <div class="tcard" id="tabla-pagos">
+        <div class="loading"><div class="spinner"></div>Cargando pagos...</div>
+      </div>
+    </div>
+
+    <!-- INGRESOS -->
+    <div id="page-ingresos" class="page">
+      <div class="topbar">
+        <div class="page-title">📈 <em>Ingresos</em></div>
+      </div>
+      <div class="stats-grid" id="ingresos-stats">
+        <div class="stat-card"><div class="loading"><div class="spinner"></div></div></div>
+      </div>
+      <div class="tcard">
+        <div class="tcard-head"><div class="tcard-title">📋 Historial de pagos aprobados</div></div>
+        <div id="tabla-ingresos"><div class="loading"><div class="spinner"></div>Cargando...</div></div>
+      </div>
+    </div>
+
+
+    <!-- GRÁFICAS DE INGRESOS -->
+    <div id="page-graficas" class="page">
+      <div class="topbar">
+        <div class="page-title">📊 <em>Gráficas</em></div>
+        <button class="btn btn-ghost btn-sm" onclick="loadGraficas()">🔄 Actualizar</button>
+      </div>
+      <div class="stats-grid" id="graf-kpis"><div class="loading"><div class="spinner"></div>Cargando...</div></div>
+      <div class="tcard" style="margin-bottom:16px">
+        <div class="tcard-head">
+          <div class="tcard-title">💰 Ingresos por Mes</div>
+          <select id="graf-anio" onchange="renderGraficaMeses()" style="background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text);padding:6px 10px;font-size:12px"></select>
+        </div>
+        <div id="graf-meses" style="padding:16px"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div class="tcard"><div class="tcard-head"><div class="tcard-title">🥧 Por Plan</div></div><div id="graf-planes" style="padding:16px"></div></div>
+        <div class="tcard"><div class="tcard-head"><div class="tcard-title">💳 Por Método</div></div><div id="graf-metodos" style="padding:16px"></div></div>
+      </div>
+    </div>
+
+    <!-- ALERTAS -->
+    <div id="page-alertas" class="page">
+      <div class="topbar">
+        <div class="page-title">🔔 <em>Alertas</em></div>
+        <button class="btn btn-ghost btn-sm" onclick="loadAlertas()">🔄 Actualizar</button>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;align-items:center">
+        <span style="font-size:12px;color:var(--muted);font-weight:600">Vencen en:</span>
+        <button class="filter-btn active" onclick="setAlertaDias(3,this)">3 días</button>
+        <button class="filter-btn" onclick="setAlertaDias(7,this)">7 días</button>
+        <button class="filter-btn" onclick="setAlertaDias(15,this)">15 días</button>
+        <button class="filter-btn" onclick="setAlertaDias(30,this)">30 días</button>
+        <button class="filter-btn" onclick="setAlertaDias(0,this)" style="border-color:var(--red);color:var(--red)">Ya vencidos</button>
+      </div>
+      <div class="stats-grid" id="alerta-stats" style="margin-bottom:16px"></div>
+      <div class="tcard">
+        <div class="tcard-head">
+          <div class="tcard-title" id="alerta-titulo">⚠️ Clientes por vencer</div>
+          <button class="btn btn-ghost btn-sm" onclick="exportarAlertasWA()">📱 WA masivo</button>
+        </div>
+        <div id="alerta-lista"><div class="loading"><div class="spinner"></div>Cargando...</div></div>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<!-- MODAL DETALLE CLIENTE — FULLSCREEN -->
+<div id="cliente-viewer" style="display:none;position:fixed;inset:0;background:var(--bg);z-index:500;flex-direction:column;overflow:hidden;">
+
+  <!-- Header -->
+  <div style="background:var(--card);border-bottom:1px solid var(--border2);padding:12px 16px;display:flex;align-items:center;gap:12px;flex-shrink:0;">
+    <button onclick="cerrarViewer()" style="background:var(--bg3);border:none;border-radius:10px;padding:8px 14px;color:var(--text);cursor:pointer;font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px;">← Volver</button>
+    <div id="cv-header-info" style="flex:1;min-width:0">
+      <div id="cv-nombre" style="font-size:15px;font-weight:800;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></div>
+      <div id="cv-rancho" style="font-size:12px;color:var(--muted)"></div>
+    </div>
+    <div id="cv-header-badges" style="display:flex;gap:6px;flex-shrink:0"></div>
+    <div style="display:flex;gap:6px;flex-shrink:0">
+      <button class="btn btn-success btn-sm" id="cv-btn-renovar">🔄 Renovar</button>
+      <button class="btn btn-primary btn-sm" id="cv-btn-editar">✏️ Editar</button>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div style="background:var(--card);border-bottom:1px solid var(--border2);overflow-x:auto;flex-shrink:0;scrollbar-width:none;">
+    <div style="display:flex;gap:0;min-width:max-content;" id="cv-tabs">
+      <button class="cv-tab active" onclick="cvTab('info',this)">👤 Perfil</button>
+      <button class="cv-tab" onclick="cvTab('animales',this)">🐂 Animales</button>
+      <button class="cv-tab" onclick="cvTab('salud',this)">💉 Salud</button>
+      <button class="cv-tab" onclick="cvTab('insem',this)">🔬 Insem.</button>
+      <button class="cv-tab" onclick="cvTab('partos',this)">🐣 Partos</button>
+      <button class="cv-tab" onclick="cvTab('gastos',this)">💰 Gastos</button>
+      <button class="cv-tab" onclick="cvTab('inventario',this)">📦 Inventario</button>
+      <button class="cv-tab" onclick="cvTab('ventas',this)">💸 Ventas</button>
+      <button class="cv-tab" onclick="cvTab('alertas',this)">🔔 Alertas</button>
+      <button class="cv-tab" onclick="cvTab('docs',this)">📄 Documentos</button>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div style="flex:1;overflow-y:auto;padding:16px;" id="cv-content">
+    <div class="loading"><div class="spinner"></div>Cargando...</div>
+  </div>
+
+</div>
+
+<!-- MODAL APROBAR PAGO -->
+<div class="modal-overlay" id="modal-aprobar">
+  <div class="modal">
+    <div class="modal-title">✅ Aprobar pago y activar suscripción</div>
+    <input type="hidden" id="m-pago-id">
+    <input type="hidden" id="m-user-id">
+    <div class="form-group">
+      <label class="form-label">Cliente</label>
+      <div id="m-cliente-info" style="font-size:14px;color:var(--text2);padding:8px 0"></div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Plan a activar</label>
+      <select class="form-select" id="m-plan" onchange="actualizarMontoModal(this)">
+        <option value="basico">Básico — 50 animales / S/35</option>
+        <option value="estandar" selected>Estándar — 100 animales / S/70</option>
+        <option value="premium">Premium — Ilimitado / S/120</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Duración</label>
+      <select class="form-select" id="m-duracion">
+        <option value="30">30 días (1 mes)</option>
+        <option value="60">60 días (2 meses)</option>
+        <option value="90">90 días (3 meses)</option>
+        <option value="365">365 días (1 año)</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Monto recibido (S/)</label>
+      <input class="inp" type="number" id="m-monto" placeholder="59" style="margin-bottom:0">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Referencia / N° operación</label>
+      <input class="inp" type="text" id="m-referencia" placeholder="Ej: 123456789" style="margin-bottom:0">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Notas (opcional)</label>
+      <input class="inp" type="text" id="m-notas" placeholder="Observaciones internas" style="margin-bottom:0">
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal('modal-aprobar')">Cancelar</button>
+      <button class="btn btn-success" onclick="aprobarPago()">✅ Aprobar y activar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL NUEVA SUSCRIPCIÓN MANUAL -->
+<div class="modal-overlay" id="modal-nueva-sus">
+  <div class="modal">
+    <div class="modal-title">➕ Crear suscripción manual</div>
+    <div class="form-group">
+      <label class="form-label">Email del cliente</label>
+      <input class="inp" type="email" id="ns-email" placeholder="cliente@email.com" style="margin-bottom:0">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Plan</label>
+      <select class="form-select" id="ns-plan">
+        <option value="trial">Trial — 5 animales</option>
+        <option value="basico">Básico — 50 animales / S/35</option>
+        <option value="estandar" selected>Estándar — 100 animales / S/70</option>
+        <option value="premium">Premium — Ilimitado / S/120</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Días de duración</label>
+      <input class="inp" type="number" id="ns-dias" value="30" style="margin-bottom:0">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Método de pago</label>
+      <select class="form-select" id="ns-metodo">
+        <option value="manual">Manual (admin)</option>
+        <option value="yape">Yape</option>
+        <option value="plin">Plin</option>
+        <option value="transferencia">Transferencia</option>
+        <option value="culqi">Culqi (tarjeta)</option>
+        <option value="paypal">PayPal</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Monto recibido (S/)</label>
+      <input class="inp" type="number" id="ns-monto" placeholder="59" style="margin-bottom:0">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Notas</label>
+      <input class="inp" type="text" id="ns-notas" placeholder="Observaciones" style="margin-bottom:0">
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal('modal-nueva-sus')">Cancelar</button>
+      <button class="btn btn-primary" onclick="crearSuscripcionManual()">💾 Crear suscripción</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EDITAR SUSCRIPCIÓN -->
+<div class="modal-overlay" id="modal-editar-sus">
+  <div class="modal">
+    <div class="modal-title">✏️ Editar suscripción</div>
+    <input type="hidden" id="es-id">
+    <input type="hidden" id="es-user-id">
+    <div class="form-group">
+      <label class="form-label">Cliente</label>
+      <div id="es-cliente" style="font-size:14px;color:var(--text2);padding:8px 0"></div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Plan</label>
+      <select class="form-select" id="es-plan">
+        <option value="trial">Trial — 5 animales</option>
+        <option value="basico">Básico — 50 animales</option>
+        <option value="estandar">Estándar — 100 animales</option>
+        <option value="premium">Premium — Ilimitado</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Estado</label>
+      <select class="form-select" id="es-estado">
+        <option value="activo">Activo</option>
+        <option value="vencido">Vencido</option>
+        <option value="suspendido">Suspendido</option>
+        <option value="cancelado">Cancelado</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Días adicionales a agregar</label>
+      <input class="inp" type="number" id="es-dias" placeholder="30" style="margin-bottom:0">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Notas</label>
+      <input class="inp" type="text" id="es-notas" placeholder="Observaciones" style="margin-bottom:0">
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal('modal-editar-sus')">Cancelar</button>
+      <button class="btn btn-danger btn-sm" onclick="suspenderSuscripcion()">🚫 Suspender</button>
+      <button class="btn btn-primary" onclick="guardarEdicionSus()">💾 Guardar</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const SB_URL = 'https://tajgjweqvuinfeqzbthw.supabase.co';
+// ANON KEY: Supabase → Settings → API → "anon public" (el JWT largo con 3 partes separadas por puntos)
+// Reemplaza este valor con tu anon key real de Supabase
+const SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRhamdqd2VxdnVpbmZlcXpidGh3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3MTQ3NjUsImV4cCI6MjA4ODI5MDc2NX0.mMneyeaMg0aDa-gfA5k6mEe5I3f_khdf6-2Q28GaDQs';
+// SERVICE ROLE KEY — bypasea RLS para leer datos de todos los clientes
+const SB_SERVICE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRhamdqd2VxdnVpbmZlcXpidGh3Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MjcxNDc2NSwiZXhwIjoyMDg4MjkwNzY1fQ.7gxhfwZRQNI2CLGOI1ct3_lfkV2QaPqGkgmBEx8Ffa0';
+const ADMIN_EMAIL = 'justweb8@gmail.com';
+
+var adminToken = null;
+var adminHeaders = { 'apikey': SB_ANON, 'Content-Type': 'application/json' };
+var DATA = { clientes:[], suscripciones:[], pagos:[] };
+var filtroClientes = 'todos';
+var filtroSus = 'todos';
+
+// ── LOGIN ──
+const ADMIN_EMAIL_ALLOWED = 'jose';
+
+async function doAdminLogin() {
+  const email = document.getElementById('admin-email').value.trim();
+  const pass  = document.getElementById('admin-pass').value;
+  const errEl = document.getElementById('login-error');
+  errEl.style.display = 'none';
+
+  if(!email || !pass) { errEl.textContent='Completa los campos'; errEl.style.display='block'; return; }
+  if(email !== ADMIN_EMAIL_ALLOWED || pass !== '123456') {
+    errEl.textContent='❌ Usuario o contraseña incorrectos';
+    errEl.style.display='block';
+    return;
+  }
+
+  // Verificar que la anon key sea un JWT válido (3 partes separadas por ".")
+  if(!SB_ANON || SB_ANON === 'TU_ANON_KEY_JWT_AQUI' || SB_ANON.split('.').length !== 3) {
+    errEl.textContent='⚠️ Configura la Anon Key JWT de Supabase en el código (SB_ANON). Ve a Supabase → Settings → API → anon public.';
+    errEl.style.display='block';
+    return;
+  }
+
+  // Login con Supabase para obtener token RLS
+  try {
+    const r = await fetch(SB_URL+'/auth/v1/token?grant_type=password', {
+      method:'POST',
+      headers:{'apikey':SB_ANON,'Content-Type':'application/json'},
+      body: JSON.stringify({email:'justweb8@gmail.com', password:pass})
+    });
+    const d = await r.json();
+    if(r.ok && d.access_token) {
+      adminToken = d.access_token;
+      adminHeaders['Authorization'] = 'Bearer ' + adminToken;
+    } else {
+      // Si no se obtiene token, usar la anon key como fallback (solo lectura o si RLS lo permite)
+      console.warn('No se obtuvo access_token de Supabase:', d);
+      adminToken = SB_ANON;
+      adminHeaders['Authorization'] = 'Bearer ' + SB_ANON;
+    }
+  } catch(e) {
+    console.error('Error de login Supabase:', e);
+    adminToken = SB_ANON;
+    adminHeaders['Authorization'] = 'Bearer ' + SB_ANON;
+  }
+
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  document.getElementById('admin-user-email').textContent = 'jose';
+  loadDashboard();
+  loadClientes();
+  loadSuscripciones();
+  loadPagos();
+}
+
+function doAdminLogout() {
+  adminToken = null;
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+}
+
+// ── NAVEGACIÓN ──
+function goAdmin(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.sb-item').forEach(i => i.classList.remove('active'));
+  const pageEl = document.getElementById('page-'+page);
+  if(pageEl) pageEl.classList.add('active');
+  try { if(event && event.currentTarget) event.currentTarget.classList.add('active'); } catch(e){}
+  if(page === 'dashboard') loadDashboard();
+  if(page === 'clientes') loadClientes();
+  if(page === 'suscripciones') { loadSuscripciones(); renderSuscripciones(); }
+  if(page === 'pagos') loadPagos();
+  if(page === 'ingresos') loadIngresos();
+  if(page === 'graficas') loadGraficas();
+  if(page === 'alertas') loadAlertas();
+  syncMobileNav(page);
+}
+
+function goAdminMobile(page, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.mobile-nav-item').forEach(i => i.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  el.classList.add('active');
+  if(page === 'dashboard') loadDashboard();
+  if(page === 'clientes') loadClientes();
+  if(page === 'suscripciones') { loadSuscripciones(); renderSuscripciones(); }
+  if(page === 'pagos') loadPagos();
+  if(page === 'ingresos') loadIngresos();
+  if(page === 'graficas') loadGraficas();
+  if(page === 'alertas') loadAlertas();
+  window.scrollTo(0,0);
+}
+
+function syncMobileNav(page) {
+  document.querySelectorAll('.mobile-nav-item').forEach(i => i.classList.remove('active'));
+  const map = {dashboard:0,clientes:1,suscripciones:2,pagos:3,ingresos:4,graficas:5,alertas:6};
+  const items = document.querySelectorAll('.mobile-nav-item');
+  if(map[page] !== undefined && items[map[page]]) items[map[page]].classList.add('active');
+}
+
+// ── API HELPERS ──
+// apiAdminFull — usa service_role key, bypasea RLS completamente
+async function apiAdminFull(endpoint) {
+  const headers = {
+    'apikey': SB_SERVICE_KEY,
+    'Authorization': 'Bearer ' + SB_SERVICE_KEY,
+    'Content-Type': 'application/json'
+  };
+  const r = await fetch(SB_URL + '/rest/v1/' + endpoint, { headers });
+  if(!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+
+async function apiAdmin(endpoint, method='GET', body=null) {
+  const opts = { method, headers: adminHeaders };
+  if(body) opts.body = JSON.stringify(body);
+  const r = await fetch(SB_URL + '/rest/v1/' + endpoint, opts);
+  return r.json();
+}
+
+// ── DASHBOARD ──
+async function loadDashboard() {
+  // Load fresh data
+  await Promise.all([loadClientes(false), loadSuscripciones(false), loadPagos(false)]);
+  renderDashboard();
+}
+
+function renderDashboard() {
+  const sus = DATA.suscripciones;
+  const activos = sus.filter(s => s.estado === 'activo' && s.plan !== 'trial').length;
+  const trials  = sus.filter(s => s.plan === 'trial' && s.estado === 'activo').length;
+  const vencidos = sus.filter(s => s.estado === 'vencido').length;
+  const pendientes = DATA.pagos.filter(p => p.estado === 'pendiente').length;
+  const ingresos = DATA.pagos.filter(p=>p.estado==='aprobado').reduce((a,b)=>a+(b.monto||0),0);
+
+  document.getElementById('dash-stats').innerHTML = `
+    <div class="stat-card"><div class="stat-val" style="color:var(--accent)">${activos}</div><div class="stat-lbl">Suscriptores activos</div><div class="stat-sub">Planes de pago</div></div>
+    <div class="stat-card"><div class="stat-val" style="color:var(--blue)">${trials}</div><div class="stat-lbl">En trial</div><div class="stat-sub">Potenciales clientes</div></div>
+    <div class="stat-card"><div class="stat-val" style="color:var(--yellow)">${pendientes}</div><div class="stat-lbl">Pagos pendientes</div><div class="stat-sub">Requieren aprobación</div></div>
+    <div class="stat-card"><div class="stat-val" style="color:var(--green)">S/${ingresos.toFixed(0)}</div><div class="stat-lbl">Ingresos totales</div><div class="stat-sub">Pagos aprobados</div></div>`;
+
+  // Bar chart planes
+  const planes = {premium:0, estandar:0, basico:0, trial:0};
+  sus.forEach(s => { if(planes[s.plan]!==undefined) planes[s.plan]++; });
+  const max = Math.max(...Object.values(planes), 1);
+  document.getElementById('dash-planes').innerHTML = Object.entries(planes).map(([plan,cnt]) => `
+    <div class="bar-row">
+      <div class="bar-label">${plan.charAt(0).toUpperCase()+plan.slice(1)}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${cnt/max*100}%"></div></div>
+      <div class="bar-val">${cnt}</div>
+    </div>`).join('');
+
+  // Recent
+  const recientes = [...DATA.suscripciones].slice(0,5);
+  document.getElementById('dash-recientes').innerHTML = recientes.length ? recientes.map(s => {
+    const emailStr  = String(s.email || s._email || '?');
+    const planStr   = String(s.plan || '—');
+    const estadoStr = String(s.estado || '');
+    let fechaStr = '—';
+    const rawFecha = s.fecha_registro || s.fecha_inicio || s.created_at || '';
+    if(rawFecha) {
+      try {
+        const d = new Date(rawFecha);
+        if(!isNaN(d)) fechaStr = d.toLocaleDateString('es-PE');
+      } catch(e){}
+    }
+    return `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">
+      <div class="avatar">${emailStr[0].toUpperCase()}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:12px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${emailStr}</div>
+        <div style="font-size:10px;color:var(--muted)">${planStr} · ${fechaStr}</div>
+      </div>
+      ${getBadgePlan(planStr, estadoStr)}
+    </div>`;
+  }).join('') : '<div class="empty-state">Sin registros</div>';
+}
+
+// ── CLIENTES ──
+async function loadClientes(render=true) {
+  try {
+    const view = await apiAdmin('vista_clientes_admin?select=*');
+    if(Array.isArray(view) && view.length > 0) {
+
+      // Normalizar sus_id: la vista puede llamarlo sus_id, suscripcion_id, o id
+      DATA.clientes = view.map(r => ({
+        ...r,
+        sus_id: r.sus_id || r.suscripcion_id || r.subscription_id || (r.user_id && r.user_id !== r.id ? r.id : undefined),
+        user_id: r.user_id || r.id
+      }));
+      DATA.suscripciones = DATA.clientes;
+    } else {
+      // Fallback: cargar perfiles + suscripciones por separado
+      const perfiles = await apiAdmin('perfiles?select=*&order=created_at.desc');
+      const sus = await apiAdmin('suscripciones?select=*&order=created_at.desc');
+      if(Array.isArray(perfiles)) {
+        DATA.clientes = perfiles.map(p => {
+          const s = Array.isArray(sus) ? sus.find(s => s.user_id === p.id) : null;
+          return {
+            ...p, ...(s||{}),
+            user_id: p.id,
+            sus_id: s?.id,
+            plan: s?.plan || 'sin_plan',
+            estado: s?.estado || 'sin_plan',
+            limite_animales: s?.limite_animales || 0,
+            dias_restantes: s?.fecha_vencimiento 
+              ? Math.ceil((new Date(s.fecha_vencimiento)-new Date())/(1000*60*60*24)) 
+              : null
+          };
+        });
+        DATA.suscripciones = DATA.clientes;
+      }
+    }
+    if(render) renderClientes();
+  } catch(e) { console.error('loadClientes error:', e); }
+}
+
+function renderClientes() {
+  const data = DATA.clientes.filter(c => {
+    if(filtroClientes === 'todos') return true;
+    if(filtroClientes === 'activo') return c.estado === 'activo' && c.plan !== 'trial';
+    if(filtroClientes === 'trial') return c.plan === 'trial';
+    if(filtroClientes === 'vencido') return c.estado === 'vencido';
+    return true;
+  });
+  const q = document.getElementById('search-clientes')?.value?.toLowerCase() || '';
+  const filtered = q ? data.filter(c => (c.email||'').toLowerCase().includes(q) || (c.rancho||'').toLowerCase().includes(q)) : data;
+
+  if(!filtered.length) { document.getElementById('tabla-clientes').innerHTML='<div class="empty-state"><div class="empty-icon">👥</div>No hay clientes</div>'; return; }
+
+  document.getElementById('tabla-clientes').innerHTML = filtered.map(cli => {
+    const dias = cli.fecha_vencimiento ? Math.ceil((new Date(cli.fecha_vencimiento)-new Date())/(1000*60*60*24)) : null;
+    const venc = cli.fecha_vencimiento ? new Date(cli.fecha_vencimiento).toLocaleDateString('es-PE') : '—';
+    const diasColor = (dias!==null&&dias<7) ? 'color:var(--yellow)' : 'color:var(--muted)';
+    const avatar = (cli.email||'?')[0].toUpperCase();
+    return `<div style="padding:14px 16px;border-bottom:1px solid rgba(184,221,60,.07)">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+        <div class="avatar" style="flex-shrink:0">${avatar}</div>
+        <div style="min-width:0;flex:1">
+          <div style="font-weight:700;color:var(--text);font-size:13px;word-break:break-all">${cli.email||'—'}</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:2px">${cli.rancho_nombre||cli.rancho||'Sin rancho'}</div>
+        </div>
+        <div style="display:flex;gap:4px;flex-shrink:0">${getBadgePlan(cli.plan,cli.estado)}</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:10px">
+        <div style="background:var(--bg3);border-radius:8px;padding:8px;text-align:center">
+          <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px">Estado</div>
+          <div>${getBadgeEstado(cli.estado)}</div>
+        </div>
+        <div style="background:var(--bg3);border-radius:8px;padding:8px;text-align:center">
+          <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px">Vence</div>
+          <div style="font-size:11px;font-weight:600;${diasColor}">${venc}</div>
+          ${dias!==null?`<div style="font-size:9px;${diasColor}">${dias}d</div>`:''}
+        </div>
+        <div style="background:var(--bg3);border-radius:8px;padding:8px;text-align:center">
+          <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px">Animales</div>
+          <div style="font-size:13px;font-weight:700;color:var(--accent)">${cli.animales_actuales||0}<span style="font-size:10px;color:var(--muted)">/${cli.limite_animales>=999?'∞':cli.limite_animales}</span></div>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-ghost btn-sm" onclick="verDetalleCliente('${cli.user_id}')">👁️</button>
+        <button class="btn btn-ghost btn-sm" style="flex:1" onclick="openEditarSus('${cli.sus_id}','${cli.user_id}','${cli.email}','${cli.plan}','${cli.estado}')">✏️ Editar</button>
+        <button class="btn btn-success btn-sm" style="flex:1" onclick="renovarRapido('${cli.sus_id}','${cli.user_id}','${cli.email}')">🔄 Renovar</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function filtrarClientes(q) { renderClientes(); }
+function setFiltroClientes(f, el) {
+  filtroClientes = f;
+  document.querySelectorAll('#filtros-clientes .filter-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  renderClientes();
+}
+
+// ── SUSCRIPCIONES ──
+async function loadSuscripciones(render=true) {
+  if(!DATA.clientes.length) await loadClientes(false);
+  if(render) renderSuscripciones();
+}
+
+function renderSuscripciones() {
+  const data = DATA.clientes.filter(c => {
+    if(filtroSus === 'todos') return true;
+    return c.estado === filtroSus || c.plan === filtroSus;
+  });
+  if(!data.length) { document.getElementById('tabla-suscripciones').innerHTML='<div class="empty-state"><div class="empty-icon">💳</div>No hay suscripciones</div>'; return; }
+
+  document.getElementById('tabla-suscripciones').innerHTML = data.map(cli => {
+    const inicio = cli.fecha_inicio ? new Date(cli.fecha_inicio).toLocaleDateString('es-PE') : '—';
+    const venc   = cli.fecha_vencimiento ? new Date(cli.fecha_vencimiento).toLocaleDateString('es-PE') : '—';
+    return `<div style="padding:14px 16px;border-bottom:1px solid rgba(184,221,60,.07)">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+        <div class="avatar" style="flex-shrink:0">${(cli.email||'?')[0].toUpperCase()}</div>
+        <div style="min-width:0;flex:1">
+          <div style="font-weight:700;color:var(--text);font-size:13px;word-break:break-all">${cli.email||'—'}</div>
+          <div style="font-size:11px;color:var(--muted)">${cli.rancho||cli.rancho_nombre||'—'}</div>
+        </div>
+        <div style="display:flex;gap:4px;flex-direction:column;align-items:flex-end">
+          ${getBadgePlan(cli.plan,cli.estado)}
+          ${getBadgeEstado(cli.estado)}
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px">
+        <div style="background:var(--bg3);border-radius:8px;padding:8px">
+          <div style="font-size:9px;color:var(--muted);margin-bottom:2px">INICIO</div>
+          <div style="font-size:12px;font-weight:600;color:var(--text)">${inicio}</div>
+        </div>
+        <div style="background:var(--bg3);border-radius:8px;padding:8px">
+          <div style="font-size:9px;color:var(--muted);margin-bottom:2px">VENCIMIENTO</div>
+          <div style="font-size:12px;font-weight:600;color:var(--text)">${venc}</div>
+        </div>
+        <div style="background:var(--bg3);border-radius:8px;padding:8px">
+          <div style="font-size:9px;color:var(--muted);margin-bottom:2px">MÉTODO</div>
+          <div style="font-size:12px;font-weight:600;color:var(--text)">${cli.metodo_pago||'—'}</div>
+        </div>
+        <div style="background:var(--bg3);border-radius:8px;padding:8px">
+          <div style="font-size:9px;color:var(--muted);margin-bottom:2px">MONTO</div>
+          <div style="font-size:12px;font-weight:700;color:var(--green)">${cli.monto_pagado?'S/'+cli.monto_pagado:'—'}</div>
+        </div>
+      </div>
+      <button class="btn btn-ghost btn-sm" style="width:100%" onclick="openEditarSus('${cli.sus_id}','${cli.user_id}','${cli.email}','${cli.plan}','${cli.estado}')">✏️ Editar suscripción</button>
+    </div>`;
+  }).join('');}
+
+function setFiltroSus(f, el) {
+  filtroSus = f;
+  document.querySelectorAll('.filters .filter-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  renderSuscripciones();
+}
+
+// ── PAGOS PENDIENTES ──
+async function loadPagos(render=true) {
+  try {
+    const pagos = await apiAdmin('pagos?estado=eq.pendiente&order=created_at.desc');
+    DATA.pagos = Array.isArray(pagos) ? pagos : [];
+    const cnt = DATA.pagos.filter(p=>p.estado==='pendiente').length;
+    const badge = document.getElementById('badge-pagos');
+    const mbadge = document.getElementById('mobile-badge-pagos');
+    if(cnt > 0) {
+      badge.style.display='inline'; badge.textContent=cnt;
+      if(mbadge){mbadge.style.display='block'; mbadge.textContent=cnt;}
+    } else {
+      badge.style.display='none';
+      if(mbadge) mbadge.style.display='none';
+    }
+    if(render) renderPagos();
+  } catch(e) { console.error(e); }
+}
+
+function renderPagos() {
+  const pendientes = DATA.pagos.filter(p => p.estado === 'pendiente');
+  const cont = document.getElementById('tabla-pagos');
+  if(!pendientes.length) {
+    cont.innerHTML = '<div class="empty-state"><div class="empty-icon">✅</div><div>No hay pagos pendientes</div><div style="font-size:13px;margin-top:6px">¡Todo al día!</div></div>';
+    return;
+  }
+  cont.innerHTML = `<div style="padding:12px;display:flex;flex-direction:column;gap:12px">
+    ${pendientes.map(p => `
+    <div style="background:var(--bg2);border:1px solid var(--border2);border-radius:14px;padding:16px;display:flex;flex-wrap:wrap;gap:14px;align-items:flex-start">
+      <!-- Info izquierda -->
+      <div style="flex:1;min-width:200px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+          <div class="avatar">${(p.notas||p.user_id)[0].toUpperCase()}</div>
+          <div>
+            <div style="font-size:13px;font-weight:700;color:var(--text)">${p.notas?.match(/Email: ([^\s|]+)/)?.[1] || p.user_id.substring(0,16)+'...'}</div>
+            <div style="font-size:11px;color:var(--muted)">${p.notas?.match(/Rancho: ([^|]+)/)?.[1]?.trim() || '—'}</div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:12px">
+          <div><span style="color:var(--muted)">Plan:</span> ${getBadgePlan(p.plan,'activo')}</div>
+          <div><span style="color:var(--muted)">Monto:</span> <strong style="color:var(--green)">S/${p.monto||'—'}</strong></div>
+          <div><span style="color:var(--muted)">Método:</span> ${p.metodo_pago||'—'}</div>
+          <div><span style="color:var(--muted)">N° Op:</span> <strong>${p.referencia_pago||'—'}</strong></div>
+          <div style="grid-column:1/-1"><span style="color:var(--muted)">Fecha:</span> ${new Date(p.created_at).toLocaleDateString('es-PE')} ${new Date(p.created_at).toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit'})}</div>
+        </div>
+      </div>
+      <!-- Voucher -->
+      <div style="flex-shrink:0;text-align:center">
+        ${p.voucher_url ? `
+          <div style="font-size:10px;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:1px">Voucher</div>
+          <img src="${p.voucher_url.length > 100 ? p.voucher_url : ''}" 
+               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
+               style="width:90px;height:90px;object-fit:cover;border-radius:10px;border:1px solid var(--border2);cursor:pointer"
+               onclick="verVoucherGrande('${p.id}','${p.voucher_url}')">
+          <div style="display:none;width:90px;height:90px;background:var(--bg3);border-radius:10px;border:1px dashed var(--border2);align-items:center;justify-content:center;font-size:11px;color:var(--muted);text-align:center">📎 Ver<br>voucher</div>
+        ` : '<div style="width:90px;height:90px;background:var(--bg3);border-radius:10px;border:1px dashed var(--border2);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--muted);text-align:center">Sin<br>voucher</div>'}
+      </div>
+      <!-- Botones -->
+      <div style="width:100%;display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-success" style="flex:1;min-width:120px" onclick="openAprobar('${p.id}','${p.user_id}','${p.plan}','${p.monto}','${p.referencia_pago||''}')">✅ Aprobar</button>
+        <button class="btn btn-ghost" style="flex:1;min-width:100px" onclick="notificarCliente('${p.notas?.match(/Email: ([^\s|]+)/)?.[1]||''}','aprobado')">📱 WhatsApp</button>
+        <button class="btn btn-danger btn-sm" onclick="rechazarPago('${p.id}','${p.user_id}','${p.notas?.match(/Email: ([^\s|]+)/)?.[1]||''}')">✕ Rechazar</button>
+      </div>
+    </div>`).join('')}
+  </div>`;
+}
+
+function verVoucherGrande(id, url) {
+  if(!url || url.length < 50) return;
+  const ov = document.createElement('div');
+  ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;cursor:pointer';
+  ov.innerHTML=`<div style="max-width:90vw;max-height:90vh;text-align:center">
+    <img src="${url}" style="max-width:100%;max-height:80vh;border-radius:12px">
+    <div style="color:#fff;font-size:12px;margin-top:10px">Toca para cerrar</div>
+  </div>`;
+  ov.onclick=()=>ov.remove();
+  document.body.appendChild(ov);
+}
+
+function notificarCliente(email, estado) {
+  if(!email) { toast('⚠️ No se encontró el email del cliente'); return; }
+  const msgs = {
+    aprobado: '🐄 *VaqueroApp* - Hola! Tu pago fue aprobado ✅. Ya puedes ingresar al sistema con tu nueva suscripción activa.',
+    rechazado: '🐄 *VaqueroApp* - Hola, revisamos tu pago pero no pudimos verificarlo. Por favor contáctanos para ayudarte.'
+  };
+  window.open('https://wa.me/?text='+encodeURIComponent(msgs[estado]||''), '_blank');
+}
+
+// ── INGRESOS ──
+async function loadIngresos() {
+  const pagos = await apiAdmin('pagos?estado=eq.aprobado&order=aprobado_at.desc');
+  const data = Array.isArray(pagos) ? pagos : [];
+  const total = data.reduce((a,b)=>a+(b.monto||0),0);
+  const mes = data.filter(p => new Date(p.aprobado_at||p.created_at).getMonth() === new Date().getMonth()).reduce((a,b)=>a+(b.monto||0),0);
+
+  document.getElementById('ingresos-stats').innerHTML = `
+    <div class="stat-card"><div class="stat-val" style="color:var(--green)">S/${total.toFixed(0)}</div><div class="stat-lbl">Total histórico</div></div>
+    <div class="stat-card"><div class="stat-val" style="color:var(--accent)">S/${mes.toFixed(0)}</div><div class="stat-lbl">Este mes</div></div>
+    <div class="stat-card"><div class="stat-val" style="color:var(--blue)">${data.length}</div><div class="stat-lbl">Pagos aprobados</div></div>
+    <div class="stat-card"><div class="stat-val" style="color:var(--yellow)">S/${data.length?((total/data.length).toFixed(0)):'0'}</div><div class="stat-lbl">Ticket promedio</div></div>`;
+
+  document.getElementById('tabla-ingresos').innerHTML = data.length ? data.map(p => {
+    const fecha = new Date(p.aprobado_at||p.created_at).toLocaleDateString('es-PE');
+    const hora  = new Date(p.aprobado_at||p.created_at).toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit'});
+    // Try to find email from notas or clientes data
+    const clienteEmail = p.notas?.match(/Email: ([^\s|]+)/)?.[1] || DATA.clientes.find(x=>x.user_id===p.user_id)?.email || p.user_id?.substring(0,16)+'...';
+    return `<div style="padding:14px 16px;border-bottom:1px solid rgba(184,221,60,.07)">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div style="display:flex;align-items:center;gap:8px;min-width:0">
+          <div class="avatar" style="flex-shrink:0">${(clienteEmail||'?')[0].toUpperCase()}</div>
+          <div style="min-width:0">
+            <div style="font-size:12px;font-weight:600;color:var(--text);word-break:break-all">${clienteEmail}</div>
+            <div style="font-size:10px;color:var(--muted)">${fecha} ${hora}</div>
+          </div>
+        </div>
+        <div style="font-size:20px;font-weight:800;color:var(--green);flex-shrink:0">S/${p.monto||'—'}</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px">
+        <div style="background:var(--bg3);border-radius:8px;padding:8px;text-align:center">
+          <div style="font-size:9px;color:var(--muted);margin-bottom:2px">PLAN</div>
+          ${getBadgePlan(p.plan,'activo')}
+        </div>
+        <div style="background:var(--bg3);border-radius:8px;padding:8px;text-align:center">
+          <div style="font-size:9px;color:var(--muted);margin-bottom:2px">MÉTODO</div>
+          <div style="font-size:11px;font-weight:600;color:var(--text)">${p.metodo_pago||'—'}</div>
+        </div>
+        <div style="background:var(--bg3);border-radius:8px;padding:8px;text-align:center">
+          <div style="font-size:9px;color:var(--muted);margin-bottom:2px">N° OP</div>
+          <div style="font-size:11px;font-weight:600;color:var(--text)">${p.referencia_pago||'—'}</div>
+        </div>
+      </div>
+    </div>`;
+  }).join('') : '<div class="empty-state">Sin pagos aprobados</div>';
+}
+
+// ── APROBAR PAGO ──
+function actualizarMontoModal(sel) {
+  const precios = {basico:35, estandar:70, premium:120};
+  const monto = document.getElementById('m-monto');
+  if(monto && !monto.value) monto.value = precios[sel.value] || '';
+}
+
+function openAprobar(pagoId, userId, plan, monto, ref) {
+  document.getElementById('m-pago-id').value = pagoId;
+  document.getElementById('m-user-id').value = userId;
+  document.getElementById('m-plan').value = plan || 'estandar';
+  document.getElementById('m-monto').value = monto || '';
+  document.getElementById('m-referencia').value = ref || '';
+  document.getElementById('m-cliente-info').textContent = 'User ID: ' + userId;
+  document.getElementById('modal-aprobar').classList.add('open');
+}
+
+async function aprobarPago() {
+  const pagoId   = document.getElementById('m-pago-id').value;
+  const userId   = document.getElementById('m-user-id').value;
+  const plan     = document.getElementById('m-plan').value;
+  const dias     = parseInt(document.getElementById('m-duracion').value);
+  const monto    = parseFloat(document.getElementById('m-monto').value) || 0;
+  const ref      = document.getElementById('m-referencia').value;
+  const notas    = document.getElementById('m-notas').value;
+  const limites  = {trial:5, basico:50, estandar:100, premium:999};
+  const venc     = new Date(Date.now() + dias*24*60*60*1000).toISOString();
+
+  try {
+    // 1. Marcar suscripciones anteriores como vencidas
+    await fetch(SB_URL+'/rest/v1/suscripciones?user_id=eq.'+userId+'&estado=eq.activo', {
+      method:'PATCH',
+      headers:{...adminHeaders,'Prefer':'return=minimal'},
+      body: JSON.stringify({estado:'vencido'})
+    });
+
+    // 2. Crear nueva suscripción activa
+    await fetch(SB_URL+'/rest/v1/suscripciones', {
+      method:'POST',
+      headers:{...adminHeaders,'Prefer':'return=minimal'},
+      body: JSON.stringify({
+        user_id: userId, plan, estado:'activo',
+        limite_animales: limites[plan],
+        metodo_pago: 'manual', monto_pagado: monto,
+        referencia_pago: ref, notas_admin: notas,
+        aprobado_por: ADMIN_EMAIL,
+        fecha_inicio: new Date().toISOString(),
+        fecha_vencimiento: venc
+      })
+    });
+
+    // 2. Marcar pago como aprobado
+    if(pagoId) {
+      await fetch(SB_URL+'/rest/v1/pagos?id=eq.'+pagoId, {
+        method:'PATCH',
+        headers:{...adminHeaders,'Prefer':'return=minimal'},
+        body: JSON.stringify({estado:'aprobado', aprobado_at:new Date().toISOString(), aprobado_por:ADMIN_EMAIL, referencia_pago:ref})
+      });
+    }
+
+    closeModal('modal-aprobar');
+    toast('✅ Suscripción activada correctamente');
+    await loadClientes();
+    await loadPagos();
+    renderDashboard();
+  } catch(e) { toast('❌ Error: '+e.message); }
+}
+
+async function rechazarPago(pagoId, userId, email) {
+  if(!confirm('¿Rechazar este pago?')) return;
+  await fetch(SB_URL+'/rest/v1/pagos?id=eq.'+pagoId, {
+    method:'PATCH',
+    headers:{'apikey':SB_ANON,'Authorization':'Bearer '+adminToken,'Content-Type':'application/json','Prefer':'return=minimal'},
+    body: JSON.stringify({estado:'rechazado'})
+  });
+  toast('Pago rechazado');
+  if(email) notificarCliente(email, 'rechazado');
+  loadPagos();
+}
+
+// ── EDITAR SUSCRIPCIÓN ──
+function openEditarSus(id, userId, email, plan, estado) {
+  document.getElementById('es-id').value = id;
+  document.getElementById('es-user-id').value = userId;
+  document.getElementById('es-cliente').textContent = email;
+  document.getElementById('es-plan').value = plan;
+  document.getElementById('es-estado').value = estado;
+  document.getElementById('es-dias').value = '';
+  document.getElementById('es-notas').value = '';
+  document.getElementById('modal-editar-sus').classList.add('open');
+}
+
+async function guardarEdicionSus() {
+  const id     = document.getElementById('es-id').value;
+  const plan   = document.getElementById('es-plan').value;
+  const estado = document.getElementById('es-estado').value;
+  const dias   = parseInt(document.getElementById('es-dias').value) || 0;
+  const notas  = document.getElementById('es-notas').value;
+  const limites= {trial:5, basico:50, estandar:100, premium:999};
+  const body   = { plan, estado, limite_animales:limites[plan], notas_admin:notas, updated_at:new Date().toISOString() };
+  if(dias > 0) body.fecha_vencimiento = new Date(Date.now()+dias*24*60*60*1000).toISOString();
+
+  if(!id || id === 'undefined') {
+    toast('❌ No se encontró la suscripción. Verifica que el cliente tenga una suscripción activa.');
+    return;
+  }
+
+  // Verificar que tenemos un token válido
+  if(!adminToken || adminToken.split('.').length !== 3) {
+    toast('❌ Sin autenticación válida. Cierra sesión y vuelve a ingresar.');
+    return;
+  }
+
+  const patchRes = await fetch(SB_URL+'/rest/v1/suscripciones?id=eq.'+id, {
+    method:'PATCH',
+    headers:{
+      'apikey': SB_ANON,
+      'Authorization': 'Bearer ' + adminToken,
+      'Content-Type': 'application/json',
+      'Prefer': 'return=representation'
+    },
+    body: JSON.stringify(body)
+  });
+  const patchData = await patchRes.text();
+  console.log('PATCH response:', patchRes.status, patchData);
+  if(!patchRes.ok) {
+    let errMsg = patchData;
+    try {
+      const errJson = JSON.parse(patchData);
+      if(errJson.code === 'PGRST301' || errMsg.includes('JWT')) {
+        errMsg = 'Error de autenticación JWT. Cierra sesión y vuelve a ingresar, o verifica que la Anon Key en el código sea correcta (debe ser el JWT largo de Supabase).';
+      } else {
+        errMsg = errJson.message || patchData;
+      }
+    } catch(e) {}
+    toast('❌ Error guardando: ' + errMsg);
+    return;
+  }
+  if(patchData === '[]' || patchData === '') {
+    toast('⚠️ No se encontró la suscripción con ese ID');
+    return;
+  }
+  closeModal('modal-editar-sus');
+  toast('✅ Suscripción actualizada');
+  await loadClientes();
+}
+
+async function suspenderSuscripcion() {
+  if(!confirm('¿Suspender esta suscripción?')) return;
+  const id = document.getElementById('es-id').value;
+  await fetch(SB_URL+'/rest/v1/suscripciones?id=eq.'+id, {
+    method:'PATCH', headers:{...adminHeaders,'Prefer':'return=minimal'},
+    body: JSON.stringify({estado:'suspendido'})
+  });
+  closeModal('modal-editar-sus');
+  toast('Suscripción suspendida');
+  loadClientes();
+}
+
+async function renovarRapido(id, userId, email) {
+  if(!confirm('¿Renovar 30 días a '+email+'?')) return;
+  const venc = new Date(Date.now()+30*24*60*60*1000).toISOString();
+  if(!id || id === 'undefined') { toast('❌ ID de suscripción no encontrado'); return; }
+  const res = await fetch(SB_URL+'/rest/v1/suscripciones?id=eq.'+id, {
+    method:'PATCH',
+    headers:{
+      'apikey': SB_ANON,
+      'Authorization': 'Bearer ' + adminToken,
+      'Content-Type': 'application/json',
+      'Prefer': 'return=representation'
+    },
+    body: JSON.stringify({estado:'activo', limite_animales: {trial:5,basico:50,estandar:100,premium:999}[plan]||50, fecha_vencimiento:venc})
+  });
+  const resData = await res.text();
+  console.log('Renovar response:', res.status, resData);
+  if(resData === '[]') { toast('⚠️ No se actualizó - verifica RLS en Supabase'); return; }
+  toast('✅ Renovado 30 días a '+email);
+  await loadClientes();
+}
+
+// ── NUEVA SUSCRIPCIÓN MANUAL ──
+function openModalNuevaSus() { document.getElementById('modal-nueva-sus').classList.add('open'); }
+
+async function crearSuscripcionManual() {
+  const email  = document.getElementById('ns-email').value.trim();
+  const plan   = document.getElementById('ns-plan').value;
+  const dias   = parseInt(document.getElementById('ns-dias').value) || 30;
+  const metodo = document.getElementById('ns-metodo').value;
+  const monto  = parseFloat(document.getElementById('ns-monto').value) || 0;
+  const notas  = document.getElementById('ns-notas').value;
+  if(!email) { toast('⚠️ Ingresa el email del cliente'); return; }
+  const limites= {trial:5, basico:50, estandar:100, premium:999};
+
+  // Buscar user_id por email
+  const users = await apiAdmin('ranchos?select=user_id&order=created_at.desc');
+  // We need admin access - create with email note
+  const venc = new Date(Date.now()+dias*24*60*60*1000).toISOString();
+
+  toast('ℹ️ Para crear suscripción manual ve a Supabase → Table Editor → suscripciones y agrega el registro con el user_id del cliente');
+  closeModal('modal-nueva-sus');
+}
+
+// ── HELPERS ──
+function getBadgePlan(plan, estado) {
+  if(estado === 'vencido') return '<span class="badge badge-vencido">Vencido</span>';
+  const m = {trial:'badge-trial', basico:'badge-basico', estandar:'badge-estandar', premium:'badge-premium'};
+  const n = {trial:'Trial', basico:'Básico', estandar:'Estándar', premium:'Premium'};
+  return `<span class="badge ${m[plan]||''}">${n[plan]||plan}</span>`;
+}
+
+function getBadgeEstado(estado) {
+  const m = {activo:'badge-activo', vencido:'badge-vencido', suspendido:'badge-suspendido', trial:'badge-trial', pendiente:'badge-pendiente'};
+  return `<span class="badge ${m[estado]||''}">${estado}</span>`;
+}
+
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+function toast(msg, dur=3000) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'), dur);
+}
+
+// Cerrar modal al click fuera
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', e => { if(e.target===m) m.classList.remove('open'); });
+});
+
+
+// iOS install tip
+function checkIOSInstallTip() {
+  var isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  var isStandalone = window.navigator.standalone;
+  var tip = document.getElementById('ios-install-tip');
+  if(isIOS && !isStandalone && tip) tip.style.display='block';
+}
+setTimeout(checkIOSInstallTip, 2000);
+
+// ── PWA INSTALL ──
+var deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', function(e) {
+  e.preventDefault();
+  deferredPrompt = e;
+  var b = document.getElementById('pwa-banner');
+  if(b) b.style.display='flex';
+});
+window.addEventListener('appinstalled', function() {
+  var b = document.getElementById('pwa-banner');
+  if(b) b.style.display='none';
+});
+function installPWA() {
+  if(deferredPrompt) {
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(function(){ deferredPrompt=null; var b=document.getElementById('pwa-banner'); if(b) b.style.display='none'; });
+  }
+}
+
+// ══════════════════════════════════════
+// GRÁFICAS
+// ══════════════════════════════════════
+var grafData = [];
+var alertaDias = 3;
+
+async function loadGraficas() {
+  try {
+    const pagos = await apiAdmin('pagos?estado=eq.aprobado&order=aprobado_at.desc');
+    grafData = Array.isArray(pagos) ? pagos : [];
+    renderGrafKPIs(); renderGrafAnios(); renderGraficaMeses(); renderGrafPlanes(); renderGrafMetodos();
+  } catch(e) { console.error('loadGraficas:', e); }
+}
+
+function renderGrafKPIs() {
+  const total = grafData.reduce((a,b)=>a+(b.monto||0),0);
+  const hoy = new Date();
+  const mes = grafData.filter(p=>{const d=new Date(p.aprobado_at||p.created_at);return d.getMonth()===hoy.getMonth()&&d.getFullYear()===hoy.getFullYear();}).reduce((a,b)=>a+(b.monto||0),0);
+  const semana = grafData.filter(p=>(hoy-new Date(p.aprobado_at||p.created_at))/(1000*60*60*24)<=7).reduce((a,b)=>a+(b.monto||0),0);
+  const prom = grafData.length?(total/grafData.length).toFixed(0):0;
+  document.getElementById('graf-kpis').innerHTML=`
+    <div class="stat-card"><div class="stat-val" style="color:var(--green)">S/${total.toFixed(0)}</div><div class="stat-lbl">Total histórico</div><div class="stat-sub">${grafData.length} pagos</div></div>
+    <div class="stat-card"><div class="stat-val" style="color:var(--accent)">S/${mes.toFixed(0)}</div><div class="stat-lbl">Este mes</div></div>
+    <div class="stat-card"><div class="stat-val" style="color:var(--blue)">S/${semana.toFixed(0)}</div><div class="stat-lbl">Últimos 7 días</div></div>
+    <div class="stat-card"><div class="stat-val" style="color:var(--yellow)">S/${prom}</div><div class="stat-lbl">Ticket promedio</div></div>`;
+}
+
+function renderGrafAnios() {
+  const anios=[...new Set(grafData.map(p=>new Date(p.aprobado_at||p.created_at).getFullYear()))].sort().reverse();
+  const sel=document.getElementById('graf-anio'); if(!sel) return;
+  const cur=sel.value||new Date().getFullYear();
+  sel.innerHTML=anios.map(a=>`<option value="${a}" ${a==cur?'selected':''}>${a}</option>`).join('');
+}
+
+function renderGraficaMeses() {
+  const anio=parseInt(document.getElementById('graf-anio')?.value||new Date().getFullYear());
+  const nom=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+  const por=Array(12).fill(0); const cnt=Array(12).fill(0);
+  grafData.forEach(p=>{const d=new Date(p.aprobado_at||p.created_at);if(d.getFullYear()===anio){por[d.getMonth()]+=parseFloat(p.monto||0);cnt[d.getMonth()]++;}});
+  const maxV=Math.max(...por,1); const tot=por.reduce((a,b)=>a+b,0);
+  const cont=document.getElementById('graf-meses'); if(!cont) return;
+  if(!tot){cont.innerHTML='<div style="text-align:center;padding:30px;color:var(--muted);font-size:13px">Sin datos para este año</div>';return;}
+  cont.innerHTML=nom.map((m,i)=>{
+    const pct=Math.round((por[i]/maxV)*100);
+    const cur=i===new Date().getMonth()&&anio===new Date().getFullYear();
+    return `<div class="graf-bar-row"><div class="graf-bar-lbl">${m}</div><div class="graf-bar-track"><div class="graf-bar-fill" style="width:${pct}%;background:${cur?'var(--accent)':'rgba(184,221,60,.5)'};">${por[i]>0?`<span>S/${por[i].toFixed(0)}</span>`:''}</div></div><div class="graf-bar-val">${cnt[i]?cnt[i]+'p':'—'}</div></div>`;
+  }).join('')+`<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border2);display:flex;justify-content:space-between;font-size:13px"><span style="color:var(--muted)">Total ${anio}</span><strong style="color:var(--green)">S/${tot.toFixed(2)}</strong></div>`;
+}
+
+function renderGrafPlanes() {
+  const planes={}; const colors={premium:'var(--accent)',estandar:'var(--blue)',basico:'var(--yellow)',trial:'var(--muted)'};
+  grafData.forEach(p=>{planes[p.plan||'otro']=(planes[p.plan||'otro']||0)+parseFloat(p.monto||0);});
+  const tot=Object.values(planes).reduce((a,b)=>a+b,0)||1;
+  const cont=document.getElementById('graf-planes'); if(!cont) return;
+  if(!Object.keys(planes).length){cont.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted);font-size:12px">Sin datos</div>';return;}
+  cont.innerHTML=Object.entries(planes).sort((a,b)=>b[1]-a[1]).map(([p,m])=>{
+    const pct=Math.round((m/tot)*100); const c=colors[p]||'var(--accent)';
+    return `<div class="graf-donut-row"><div class="graf-dot" style="background:${c}"></div><div class="graf-donut-lbl">${p}</div><div class="graf-donut-val">S/${m.toFixed(0)}</div><span style="font-size:10px;color:var(--muted)">${pct}%</span></div><div style="height:5px;background:var(--bg3);border-radius:3px;margin-bottom:8px;overflow:hidden"><div style="height:100%;width:${pct}%;background:${c};border-radius:3px"></div></div>`;
+  }).join('');
+}
+
+function renderGrafMetodos() {
+  const met={}; const cols=['var(--accent)','var(--blue)','var(--green)','var(--yellow)'];
+  grafData.forEach(p=>{const m=p.metodo_pago||'Otro';met[m]=(met[m]||0)+parseFloat(p.monto||0);});
+  const tot=Object.values(met).reduce((a,b)=>a+b,0)||1;
+  const cont=document.getElementById('graf-metodos'); if(!cont) return;
+  if(!Object.keys(met).length){cont.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted);font-size:12px">Sin datos</div>';return;}
+  cont.innerHTML=Object.entries(met).sort((a,b)=>b[1]-a[1]).map(([m,v],i)=>{
+    const pct=Math.round((v/tot)*100); const c=cols[i%cols.length];
+    return `<div class="graf-donut-row"><div class="graf-dot" style="background:${c}"></div><div class="graf-donut-lbl">${m}</div><div class="graf-donut-val">S/${v.toFixed(0)}</div><span style="font-size:10px;color:var(--muted)">${pct}%</span></div><div style="height:5px;background:var(--bg3);border-radius:3px;margin-bottom:8px;overflow:hidden"><div style="height:100%;width:${pct}%;background:${c};border-radius:3px"></div></div>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════
+// ALERTAS
+// ══════════════════════════════════════
+
+async function loadAlertas() {
+  if(!DATA.clientes.length) await loadClientes(false);
+  renderAlertas(); actualizarBadgeAlertas();
+}
+
+function setAlertaDias(dias, btn) {
+  alertaDias = dias;
+  document.querySelectorAll('#page-alertas .filter-btn').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  renderAlertas();
+}
+
+function actualizarBadgeAlertas() {
+  const hoy=new Date();
+  const n=DATA.clientes.filter(c=>{if(!c.fecha_vencimiento)return false;const d=Math.ceil((new Date(c.fecha_vencimiento)-hoy)/(1000*60*60*24));return d>=0&&d<=7;}).length;
+  const b=document.getElementById('badge-alertas'); if(b){b.style.display=n>0?'inline':'none';b.textContent=n;}
+  const mb=document.getElementById('mobile-badge-alertas'); if(mb){mb.style.display=n>0?'flex':'none';mb.textContent=n;}
+}
+
+function renderAlertas() {
+  const hoy=new Date(); let lista;
+  if(alertaDias===0){
+    lista=DATA.clientes.filter(c=>c.fecha_vencimiento&&new Date(c.fecha_vencimiento)<hoy&&c.estado!=='trial').sort((a,b)=>new Date(a.fecha_vencimiento)-new Date(b.fecha_vencimiento));
+    const t=document.getElementById('alerta-titulo'); if(t) t.textContent='❌ Clientes ya vencidos';
+  } else {
+    lista=DATA.clientes.filter(c=>{if(!c.fecha_vencimiento)return false;const d=Math.ceil((new Date(c.fecha_vencimiento)-hoy)/(1000*60*60*24));return d>=0&&d<=alertaDias;}).sort((a,b)=>new Date(a.fecha_vencimiento)-new Date(b.fecha_vencimiento));
+    const t=document.getElementById('alerta-titulo'); if(t) t.textContent=`⚠️ Vencen en los próximos ${alertaDias} días`;
+  }
+  const v3=DATA.clientes.filter(c=>{if(!c.fecha_vencimiento)return false;const d=Math.ceil((new Date(c.fecha_vencimiento)-hoy)/(1000*60*60*24));return d>=0&&d<=3;}).length;
+  const v7=DATA.clientes.filter(c=>{if(!c.fecha_vencimiento)return false;const d=Math.ceil((new Date(c.fecha_vencimiento)-hoy)/(1000*60*60*24));return d>=0&&d<=7;}).length;
+  const venc=DATA.clientes.filter(c=>c.estado==='vencido').length;
+  const st=document.getElementById('alerta-stats');
+  if(st) st.innerHTML=`<div class="stat-card"><div class="stat-val" style="color:var(--red)">${v3}</div><div class="stat-lbl">Vencen en 3 días</div></div><div class="stat-card"><div class="stat-val" style="color:var(--yellow)">${v7}</div><div class="stat-lbl">Vencen en 7 días</div></div><div class="stat-card"><div class="stat-val" style="color:var(--muted)">${venc}</div><div class="stat-lbl">Ya vencidos</div></div>`;
+  const cont=document.getElementById('alerta-lista'); if(!cont) return;
+  if(!lista.length){cont.innerHTML='<div class="empty-state"><div class="empty-icon">✅</div>No hay clientes en este rango</div>';return;}
+  cont.innerHTML=lista.map(c=>{
+    const dias=Math.ceil((new Date(c.fecha_vencimiento)-hoy)/(1000*60*60*24));
+    const esV=dias<0||alertaDias===0;
+    const dcls=dias<=3?'urgente':dias<=7?'pronto':'normal';
+    const venc=new Date(c.fecha_vencimiento).toLocaleDateString('es-PE');
+    const email=c.email||'—';
+    return `<div class="alerta-card ${dias<=3?'critica':esV?'vencida':''}">
+      <div class="alerta-head">
+        <div class="avatar" style="flex-shrink:0">${(email[0]||'?').toUpperCase()}</div>
+        <div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:700;color:var(--text);word-break:break-all">${email}</div><div style="font-size:11px;color:var(--muted)">${c.rancho_nombre||c.rancho||'—'}</div></div>
+        <div style="text-align:right;flex-shrink:0"><div class="alerta-dias ${esV?'vencido':dcls}">${esV?Math.abs(dias)+'d vencido':dias+'d'}</div>${getBadgePlan(c.plan,c.estado)}</div>
+      </div>
+      <div class="alerta-grid">
+        <div class="alerta-item"><div class="alerta-item-lbl">Vencimiento</div><div class="alerta-item-val">${venc}</div></div>
+        <div class="alerta-item"><div class="alerta-item-lbl">Plan</div><div class="alerta-item-val">${c.plan||'—'}</div></div>
+        <div class="alerta-item"><div class="alerta-item-lbl">Animales</div><div class="alerta-item-val">${c.animales_actuales||0}/${c.limite_animales>=999?'∞':c.limite_animales}</div></div>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <button class="btn btn-success btn-sm" style="flex:1;min-width:90px" onclick="renovarRapido('${c.sus_id||c.id}','${c.user_id||c.id}','${email}')">🔄 Renovar</button>
+        <button class="btn btn-ghost btn-sm" style="flex:1;min-width:80px" onclick="notificarAlerta('${email}',${dias},'${c.plan||''}')">📱 Avisar</button>
+        <button class="btn btn-ghost btn-sm" onclick="verDetalleCliente('${c.user_id||c.id}')">👁️</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function notificarAlerta(email, dias, plan) {
+  const msg=dias<0?`Hola! Tu suscripción ${plan} en VaqueroApp ha vencido. Renueva ahora 🐄 https://vaqueroapp.com`:`Hola! Tu suscripción ${plan} en VaqueroApp vence en ${dias} día${dias!==1?'s':''} 🔔 Renueva a tiempo 🐄 https://vaqueroapp.com`;
+  window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
+}
+
+function exportarAlertasWA() {
+  const hoy=new Date();
+  const lista=DATA.clientes.filter(c=>{if(!c.fecha_vencimiento)return false;const d=Math.ceil((new Date(c.fecha_vencimiento)-hoy)/(1000*60*60*24));return d>=0&&d<=(alertaDias||30);});
+  if(!lista.length){toast('Sin clientes en este rango');return;}
+  const msg='🐄 VaqueroApp — Vencimientos próximos ('+lista.length+' clientes):\n\n'+lista.map(c=>{const d=Math.ceil((new Date(c.fecha_vencimiento)-hoy)/(1000*60*60*24));return '• '+(c.email||'?')+' — '+c.plan+' — vence en '+d+'d ('+new Date(c.fecha_vencimiento).toLocaleDateString('es-PE')+')';}).join('\n');
+  window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
+}
+
+// ══════════════════════════════════════
+// DETALLE CLIENTE
+// ══════════════════════════════════════
+
+// ══════════════════════════════════════════════════
+// CLIENTE VIEWER — Vista completa de datos
+// ══════════════════════════════════════════════════
+var CV = { cliente: null, tabActual: 'info', datos: {} };
+
+function verDetalleCliente(userId) {
+  const c = DATA.clientes.find(x => String(x.user_id||x.id) === String(userId));
+  if(!c){ toast('Cliente no encontrado'); return; }
+  CV.cliente = c;
+  CV.tabActual = 'info';
+  CV.datos = {};
+  CV.rancho_id = c.rancho_id || null; // se recarga si es null
+
+  // Header
+  document.getElementById('cv-nombre').textContent = c.email || '—';
+  document.getElementById('cv-rancho').textContent = '🏡 ' + (c.rancho_nombre || c.rancho || 'Sin rancho');
+  document.getElementById('cv-header-badges').innerHTML = getBadgePlan(c.plan,c.estado) + ' ' + getBadgeEstado(c.estado);
+
+  // Botones header
+  document.getElementById('cv-btn-renovar').onclick = () => renovarRapido(c.sus_id, c.user_id, c.email);
+  document.getElementById('cv-btn-editar').onclick  = () => { cerrarViewer(); openEditarSus(c.sus_id, c.user_id, c.email, c.plan, c.estado); };
+
+  // Reset tabs
+  document.querySelectorAll('.cv-tab').forEach(t => t.classList.remove('active'));
+  document.querySelector('.cv-tab').classList.add('active');
+
+  // Show viewer
+  const v = document.getElementById('cliente-viewer');
+  v.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+
+  cvTab('info', document.querySelector('.cv-tab'));
+}
+
+function cerrarViewer() {
+  document.getElementById('cliente-viewer').style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+function cvTab(tab, btn) {
+  CV.tabActual = tab;
+  document.querySelectorAll('.cv-tab').forEach(t => t.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  cvCargarTab(tab);
+}
+
+async function cvCargarTab(tab) {
+  const cont = document.getElementById('cv-content');
+  const uid  = CV.cliente.user_id || CV.cliente.id;
+
+  // Si ya cargamos los datos de este tab, solo renderizar
+  if(CV.datos[tab]) { cvRender(tab); return; }
+
+  cont.innerHTML = '<div class="loading"><div class="spinner"></div>Cargando...</div>';
+
+  try {
+    if(tab === 'info') {
+      CV.datos.info = CV.cliente;
+      cvRender('info'); return;
+    }
+
+    // Obtener rancho_id real si no lo tenemos aún
+    if(!CV.rancho_id) {
+      try {
+        // Intentar con user_id (campo más común)
+        let ranchos = await apiAdminFull(`ranchos?user_id=eq.${uid}&select=id,user_id&limit=1`);
+        if(!Array.isArray(ranchos) || !ranchos.length) {
+          ranchos = await apiAdminFull(`ranchos?owner_id=eq.${uid}&select=id,owner_id&limit=1`);
+        }
+        CV.rancho_id = Array.isArray(ranchos) && ranchos.length ? ranchos[0].id : null;
+        console.log('[CV] rancho_id encontrado:', CV.rancho_id, 'para user:', uid);
+      } catch(e) {
+        console.warn('[CV] Error buscando rancho:', e.message);
+        CV.rancho_id = null;
+      }
+    }
+
+    const rid = CV.rancho_id;
+    console.log('[CV] Cargando tab:', tab, '| rancho_id:', rid, '| user_id:', uid);
+
+    // Probar con rancho_id primero, si no hay datos intentar con user_id
+    const tryFetch = async (endpoint) => {
+      try {
+        const data = await apiAdminFull(endpoint);
+        return Array.isArray(data) ? data : [];
+      } catch(e) {
+        console.warn('[CV] tryFetch error:', endpoint, e.message);
+        return [];
+      }
+    };
+
+    let data = [];
+    if(tab === 'animales' || tab === 'salud' || tab === 'insem' || tab === 'partos' || tab === 'gastos' || tab === 'alertas') {
+      // Intentar con rancho_id primero
+      if(rid) {
+        data = await tryFetch(`${tab}?rancho_id=eq.${rid}&order=created_at.desc`);
+        console.log('[CV]', tab, 'por rancho_id:', data.length, 'registros');
+      }
+      // Si no hay resultados, intentar con user_id
+      if(!data.length) {
+        data = await tryFetch(`${tab}?user_id=eq.${uid}&order=created_at.desc`);
+        console.log('[CV]', tab, 'por user_id:', data.length, 'registros');
+      }
+    } else if(tab === 'inventario') {
+      data = await tryFetch(`inventario?user_id=eq.${uid}&order=created_at.desc`);
+      if(!data.length && rid) data = await tryFetch(`inventario?rancho_id=eq.${rid}&order=created_at.desc`);
+    } else if(tab === 'ventas') {
+      data = await tryFetch(`ventas?user_id=eq.${uid}&order=created_at.desc`);
+      if(!data.length && rid) data = await tryFetch(`ventas?rancho_id=eq.${rid}&order=created_at.desc`);
+    } else if(tab === 'docs') {
+      data = await tryFetch(`historial_docs?user_id=eq.${uid}&order=created_at.desc&limit=50`);
+    }
+
+    CV.datos[tab] = data;
+    cvRender(tab);
+  } catch(e) {
+    cont.innerHTML = `<div class="cv-empty">⚠️ Error al cargar: ${e.message}</div>`;
+  }
+}
+
+function cvRender(tab) {
+  const cont = document.getElementById('cv-content');
+  const d    = CV.datos[tab] || [];
+  const c    = CV.cliente;
+  const fmt  = v => v ? new Date(v).toLocaleDateString('es-PE') : '—';
+  const money= v => 'S/ ' + parseFloat(v||0).toFixed(2);
+
+  const badge = (txt, color) => `<span style="background:${color}22;color:${color};padding:2px 8px;border-radius:20px;font-size:11px;font-weight:700">${txt}</span>`;
+  const empty = msg => `<div class="cv-empty">📭 ${msg||'Sin registros'}</div>`;
+
+  if(tab === 'info') {
+    const hoy  = new Date();
+    const dias = c.fecha_vencimiento ? Math.ceil((new Date(c.fecha_vencimiento)-hoy)/(86400000)) : null;
+    const dc   = dias===null?'var(--muted)':dias<0?'var(--red)':dias<7?'var(--yellow)':'var(--green)';
+    const pct  = Math.min(100, Math.round(((c.animales_actuales||0)/(c.limite_animales||1))*100));
+    cont.innerHTML = `
+      <div class="cv-section-title">📋 Información General</div>
+      <div class="cv-info-grid" style="margin-bottom:16px">
+        <div class="cv-info-field"><div class="cv-info-lbl">Email</div><div class="cv-info-val" style="font-size:13px;word-break:break-all">${c.email||'—'}</div></div>
+        <div class="cv-info-field"><div class="cv-info-lbl">Nombre</div><div class="cv-info-val">${c.nombre||c.nombre_completo||'—'}</div></div>
+        <div class="cv-info-field"><div class="cv-info-lbl">Rancho</div><div class="cv-info-val">${c.rancho_nombre||c.rancho||'—'}</div></div>
+        <div class="cv-info-field"><div class="cv-info-lbl">Registro</div><div class="cv-info-val">${fmt(c.fecha_registro||c.created_at)}</div></div>
+      </div>
+      <div class="cv-section-title">💳 Suscripción</div>
+      <div class="cv-info-grid" style="margin-bottom:16px">
+        <div class="cv-info-field"><div class="cv-info-lbl">Plan</div><div class="cv-info-val">${c.plan||'—'}</div></div>
+        <div class="cv-info-field"><div class="cv-info-lbl">Estado</div><div class="cv-info-val">${c.estado||'—'}</div></div>
+        <div class="cv-info-field"><div class="cv-info-lbl">Inicio</div><div class="cv-info-val">${fmt(c.fecha_inicio)}</div></div>
+        <div class="cv-info-field"><div class="cv-info-lbl">Vencimiento</div><div class="cv-info-val" style="color:${dc}">${fmt(c.fecha_vencimiento)}</div></div>
+        <div class="cv-info-field"><div class="cv-info-lbl">Días restantes</div><div class="cv-info-val" style="color:${dc}">${dias===null?'—':dias<0?'Vencido hace '+Math.abs(dias)+'d':dias+'d'}</div></div>
+        <div class="cv-info-field"><div class="cv-info-lbl">Monto pagado</div><div class="cv-info-val" style="color:var(--green)">${c.monto_pagado?money(c.monto_pagado):'—'}</div></div>
+      </div>
+      <div class="cv-section-title">🐂 Uso del sistema</div>
+      <div class="cv-grid">
+        <div class="cv-kpi"><div class="cv-kpi-v">${c.animales_actuales||0}</div><div class="cv-kpi-l">Animales</div></div>
+        <div class="cv-kpi"><div class="cv-kpi-v">${c.limite_animales>=999?'∞':c.limite_animales||'—'}</div><div class="cv-kpi-l">Límite</div></div>
+      </div>
+      <div style="background:var(--bg3);border-radius:6px;overflow:hidden;height:8px;margin-bottom:20px">
+        <div style="height:100%;width:${pct}%;background:var(--accent);border-radius:6px;transition:width .5s"></div>
+      </div>
+      ${c.notas_admin ? `<div class="cv-section-title">📝 Notas Admin</div><div style="background:var(--card);border:1px solid var(--border2);border-radius:12px;padding:14px;font-size:13px;color:var(--text2)">${c.notas_admin}</div>` : ''}`;
+    return;
+  }
+
+  if(tab === 'animales') {
+    const total = d.length;
+    const gestantes = d.filter(a=>(a['Estado']||a.estado||'').toLowerCase()==='gestante').length;
+    const activos   = d.filter(a=>(a['Estado']||a.estado||'').toLowerCase()==='activo').length;
+    // Debug info - show filter used
+    const noServiceKey = !SB_SERVICE_KEY || SB_SERVICE_KEY === 'PEGA_AQUI_TU_SERVICE_ROLE_KEY';
+    const debugInfo = total === 0 ? `<div style="background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:10px;padding:10px 14px;margin-bottom:12px;font-size:11px;color:#f87171">
+      ${noServiceKey ? `<b>⚠️ Falta el Service Role Key</b><br>
+      Ve a <b>Supabase → Settings → API → service_role</b>, copia la clave y pégala en el código donde dice <b>SB_SERVICE_KEY</b>.<br>
+      Sin esta clave el admin no puede leer datos de otros usuarios (RLS bloquea).` :
+      `⚠️ Debug: user_id=${CV.cliente.user_id||CV.cliente.id} | rancho_id=${CV.rancho_id||'no encontrado'}<br>
+      Verifica que la tabla <b>animales</b> tenga el campo <b>rancho_id</b> o <b>user_id</b> con ese valor.`}
+    </div>` : '';
+    cont.innerHTML = debugInfo + `
+      <div class="cv-grid">
+        <div class="cv-kpi"><div class="cv-kpi-v">${total}</div><div class="cv-kpi-l">Total</div></div>
+        <div class="cv-kpi"><div class="cv-kpi-v" style="color:var(--green)">${activos}</div><div class="cv-kpi-l">Activos</div></div>
+        <div class="cv-kpi"><div class="cv-kpi-v" style="color:#e879f9">${gestantes}</div><div class="cv-kpi-l">Gestantes</div></div>
+      </div>
+      <div class="cv-card">
+        <div class="cv-card-body">
+        ${!total ? empty('Sin animales registrados') : `<div style="overflow-x:auto"><table class="cv-table">
+          <thead><tr><th>#</th><th>Nombre</th><th>Raza</th><th>Sexo</th><th>Peso</th><th>Estado</th></tr></thead>
+          <tbody>${d.slice(0,50).map(a=>`<tr>
+            <td style="color:var(--accent);font-weight:700">${a['Arete']||a.arete||'—'}</td>
+            <td>${a['Nombre']||a.nombre||'—'}</td>
+            <td>${a['Raza']||a.raza||'—'}</td>
+            <td>${a['Sexo']||a.sexo||'—'}</td>
+            <td>${a['Peso']||a.peso?`${a['Peso']||a.peso}kg`:'—'}</td>
+            <td>${badge(a['Estado']||a.estado||'—', a['Estado']==='Activo'||a.estado==='Activo'?'#4ec87a':a['Estado']==='Gestante'||a.estado==='Gestante'?'#e879f9':'#f59e0b')}</td>
+          </tr>`).join('')}</tbody>
+        </table></div>${total>50?`<div style="text-align:center;padding:10px;font-size:12px;color:var(--muted)">Mostrando 50 de ${total}</div>`:''}`}
+        </div>
+      </div>`;
+    return;
+  }
+
+  if(tab === 'salud') {
+    cont.innerHTML = `
+      <div class="cv-grid">
+        <div class="cv-kpi"><div class="cv-kpi-v">${d.length}</div><div class="cv-kpi-l">Registros</div></div>
+        <div class="cv-kpi"><div class="cv-kpi-v" style="color:var(--red)">${d.filter(s=>(s['Tipo']||s.tipo||'').toLowerCase().includes('vacuna')).length}</div><div class="cv-kpi-l">Vacunas</div></div>
+      </div>
+      <div class="cv-card"><div class="cv-card-body">
+      ${!d.length ? empty('Sin registros de salud') : `<div style="overflow-x:auto"><table class="cv-table">
+        <thead><tr><th>Animal</th><th>Tipo</th><th>Descripción</th><th>Fecha</th><th>Veterinario</th></tr></thead>
+        <tbody>${d.slice(0,40).map(s=>`<tr>
+          <td style="color:var(--accent)">${s['Animal']||s.animal||'—'}</td>
+          <td>${badge(s['Tipo']||s.tipo||'—','#4a9de0')}</td>
+          <td style="max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${s['Descripcion']||s.descripcion||'—'}</td>
+          <td>${fmt(s['Fecha']||s.fecha)}</td>
+          <td>${s['Veterinario']||s.veterinario||'—'}</td>
+        </tr>`).join('')}</tbody>
+      </table></div>`}
+      </div></div>`;
+    return;
+  }
+
+  if(tab === 'insem') {
+    const preñadas = d.filter(i=>(i['Estado']||i.estado||'').toLowerCase()==='preñada').length;
+    cont.innerHTML = `
+      <div class="cv-grid">
+        <div class="cv-kpi"><div class="cv-kpi-v">${d.length}</div><div class="cv-kpi-l">Total</div></div>
+        <div class="cv-kpi"><div class="cv-kpi-v" style="color:#e879f9">${preñadas}</div><div class="cv-kpi-l">Preñadas</div></div>
+        <div class="cv-kpi"><div class="cv-kpi-v">${d.length?Math.round(preñadas/d.length*100)+'%':'—'}</div><div class="cv-kpi-l">Éxito</div></div>
+      </div>
+      <div class="cv-card"><div class="cv-card-body">
+      ${!d.length ? empty('Sin registros de inseminación') : `<div style="overflow-x:auto"><table class="cv-table">
+        <thead><tr><th>Animal</th><th>Toro/Dosis</th><th>Fecha</th><th>Estado</th></tr></thead>
+        <tbody>${d.slice(0,40).map(i=>`<tr>
+          <td style="color:var(--accent)">${i['Animal']||i.animal||'—'}</td>
+          <td>${i['Toro']||i.toro||i['Dosis']||i.dosis||'—'}</td>
+          <td>${fmt(i['Fecha']||i.fecha)}</td>
+          <td>${badge(i['Estado']||i.estado||'—',i['Estado']==='Preñada'||i.estado==='Preñada'?'#e879f9':i['Estado']==='Fallida'||i.estado==='Fallida'?'#ef4444':'#f59e0b')}</td>
+        </tr>`).join('')}</tbody>
+      </table></div>`}
+      </div></div>`;
+    return;
+  }
+
+  if(tab === 'partos') {
+    cont.innerHTML = `
+      <div class="cv-grid">
+        <div class="cv-kpi"><div class="cv-kpi-v">${d.length}</div><div class="cv-kpi-l">Total partos</div></div>
+        <div class="cv-kpi"><div class="cv-kpi-v" style="color:var(--green)">${d.filter(p=>p['Estado']||p.estado).length}</div><div class="cv-kpi-l">Registrados</div></div>
+      </div>
+      <div class="cv-card"><div class="cv-card-body">
+      ${!d.length ? empty('Sin registros de partos') : `<div style="overflow-x:auto"><table class="cv-table">
+        <thead><tr><th>Madre</th><th>Fecha</th><th>Cría</th><th>Sexo cría</th><th>Estado</th></tr></thead>
+        <tbody>${d.slice(0,40).map(p=>`<tr>
+          <td style="color:var(--accent)">${p['Madre']||p.madre||'—'}</td>
+          <td>${fmt(p['Fecha']||p.fecha||p['FechaParto']||p.fecha_parto)}</td>
+          <td>${p['NombreCria']||p.nombre_cria||p['Cria']||p.cria||'—'}</td>
+          <td>${p['SexoCria']||p.sexo_cria||'—'}</td>
+          <td>${badge(p['Estado']||p.estado||'Registrado','#4ec87a')}</td>
+        </tr>`).join('')}</tbody>
+      </table></div>`}
+      </div></div>`;
+    return;
+  }
+
+  if(tab === 'gastos') {
+    const ingresos = d.filter(g=>String(g['EsIngreso']||g.es_ingreso||'').toUpperCase()==='SI');
+    const egresos  = d.filter(g=>String(g['EsIngreso']||g.es_ingreso||'').toUpperCase()!=='SI');
+    const totIng   = ingresos.reduce((s,g)=>s+parseFloat(g['Monto']||g.monto||0),0);
+    const totEgr   = egresos.reduce((s,g)=>s+parseFloat(g['Monto']||g.monto||0),0);
+    cont.innerHTML = `
+      <div class="cv-grid">
+        <div class="cv-kpi"><div class="cv-kpi-v" style="color:var(--green)">${money(totIng)}</div><div class="cv-kpi-l">Ingresos</div></div>
+        <div class="cv-kpi"><div class="cv-kpi-v" style="color:var(--red)">${money(totEgr)}</div><div class="cv-kpi-l">Egresos</div></div>
+        <div class="cv-kpi"><div class="cv-kpi-v" style="color:${totIng-totEgr>=0?'var(--green)':'var(--red)'}">${money(totIng-totEgr)}</div><div class="cv-kpi-l">Balance</div></div>
+        <div class="cv-kpi"><div class="cv-kpi-v">${d.length}</div><div class="cv-kpi-l">Movimientos</div></div>
+      </div>
+      <div class="cv-card"><div class="cv-card-body">
+      ${!d.length ? empty('Sin registros de gastos') : `<div style="overflow-x:auto"><table class="cv-table">
+        <thead><tr><th>Tipo</th><th>Descripción</th><th>Monto</th><th>Fecha</th></tr></thead>
+        <tbody>${d.slice(0,40).map(g=>{
+          const esIng = String(g['EsIngreso']||g.es_ingreso||'').toUpperCase()==='SI';
+          return `<tr>
+            <td>${badge(esIng?'Ingreso':'Egreso',esIng?'#4ec87a':'#ef4444')}</td>
+            <td>${g['Descripcion']||g.descripcion||g['Tipo']||g.tipo||'—'}</td>
+            <td style="font-weight:700;color:${esIng?'var(--green)':'var(--red)'}">${money(g['Monto']||g.monto)}</td>
+            <td>${fmt(g['Fecha']||g.fecha)}</td>
+          </tr>`;
+        }).join('')}</tbody>
+      </table></div>`}
+      </div></div>`;
+    return;
+  }
+
+  if(tab === 'inventario') {
+    const bajStock = d.filter(i=>parseFloat(i.stock||i['Stock']||0)<=parseFloat(i.minimo||i['Minimo']||0));
+    const valTotal = d.reduce((s,i)=>s+parseFloat(i.stock||i['Stock']||0)*parseFloat(i.precio||i['Precio']||0),0);
+    cont.innerHTML = `
+      <div class="cv-grid">
+        <div class="cv-kpi"><div class="cv-kpi-v">${d.length}</div><div class="cv-kpi-l">Productos</div></div>
+        <div class="cv-kpi"><div class="cv-kpi-v" style="color:var(--red)">${bajStock.length}</div><div class="cv-kpi-l">Stock bajo</div></div>
+        <div class="cv-kpi"><div class="cv-kpi-v" style="color:var(--green)">${money(valTotal)}</div><div class="cv-kpi-l">Valor total</div></div>
+      </div>
+      <div class="cv-card"><div class="cv-card-body">
+      ${!d.length ? empty('Sin productos en inventario') : `<div style="overflow-x:auto"><table class="cv-table">
+        <thead><tr><th>Producto</th><th>Categoría</th><th>Stock</th><th>Mínimo</th><th>Precio u.</th></tr></thead>
+        <tbody>${d.slice(0,40).map(i=>{
+          const st = parseFloat(i.stock||i['Stock']||0);
+          const mn = parseFloat(i.minimo||i['Minimo']||0);
+          return `<tr>
+            <td style="font-weight:600">${i.nombre||i['Nombre']||'—'}</td>
+            <td>${i.categoria||i['Categoria']||'—'}</td>
+            <td style="color:${st<=mn?'var(--red)':'var(--green)'};font-weight:700">${st} ${i.unidad||i['Unidad']||''}</td>
+            <td>${mn}</td>
+            <td>${i.precio||i['Precio']?money(i.precio||i['Precio']):'—'}</td>
+          </tr>`;
+        }).join('')}</tbody>
+      </table></div>`}
+      </div></div>`;
+    return;
+  }
+
+  if(tab === 'ventas') {
+    const total = d.reduce((s,v)=>s+parseFloat(v.precio||v['Precio']||0),0);
+    cont.innerHTML = `
+      <div class="cv-grid">
+        <div class="cv-kpi"><div class="cv-kpi-v">${d.length}</div><div class="cv-kpi-l">Ventas</div></div>
+        <div class="cv-kpi"><div class="cv-kpi-v" style="color:var(--green)">${money(total)}</div><div class="cv-kpi-l">Total vendido</div></div>
+      </div>
+      <div class="cv-card"><div class="cv-card-body">
+      ${!d.length ? empty('Sin ventas registradas') : `<div style="overflow-x:auto"><table class="cv-table">
+        <thead><tr><th>Animal</th><th>Comprador</th><th>Precio</th><th>Peso</th><th>Fecha</th></tr></thead>
+        <tbody>${d.slice(0,40).map(v=>`<tr>
+          <td style="color:var(--accent)">${v.animal||v['Animal']||'—'}</td>
+          <td>${v.comprador||v['Comprador']||'—'}</td>
+          <td style="color:var(--green);font-weight:700">${money(v.precio||v['Precio'])}</td>
+          <td>${v.peso||v['Peso']?`${v.peso||v['Peso']}kg`:'—'}</td>
+          <td>${fmt(v.fecha||v['Fecha'])}</td>
+        </tr>`).join('')}</tbody>
+      </table></div>`}
+      </div></div>`;
+    return;
+  }
+
+  if(tab === 'alertas') {
+    const urgentes = d.filter(a=>(a['Urgencia']||a.urgencia||a['Prioridad']||a.prioridad||'').toLowerCase()==='alta'||'urgente');
+    cont.innerHTML = `
+      <div class="cv-grid">
+        <div class="cv-kpi"><div class="cv-kpi-v">${d.length}</div><div class="cv-kpi-l">Total alertas</div></div>
+        <div class="cv-kpi"><div class="cv-kpi-v" style="color:var(--red)">${urgentes.length}</div><div class="cv-kpi-l">Urgentes</div></div>
+      </div>
+      <div class="cv-card"><div class="cv-card-body">
+      ${!d.length ? empty('Sin alertas registradas') : `<div style="overflow-x:auto"><table class="cv-table">
+        <thead><tr><th>Tipo</th><th>Descripción</th><th>Fecha</th><th>Prioridad</th></tr></thead>
+        <tbody>${d.slice(0,40).map(a=>`<tr>
+          <td>${a['Tipo']||a.tipo||'—'}</td>
+          <td>${a['Descripcion']||a.descripcion||a['Mensaje']||a.mensaje||'—'}</td>
+          <td>${fmt(a['Fecha']||a.fecha)}</td>
+          <td>${badge(a['Urgencia']||a.urgencia||a['Prioridad']||a.prioridad||'Normal',(a['Urgencia']||a.urgencia||'').toLowerCase()==='alta'?'#ef4444':'#f59e0b')}</td>
+        </tr>`).join('')}</tbody>
+      </table></div>`}
+      </div></div>`;
+    return;
+  }
+
+  if(tab === 'docs') {
+    cont.innerHTML = `
+      <div class="cv-grid">
+        <div class="cv-kpi"><div class="cv-kpi-v">${d.length}</div><div class="cv-kpi-l">Documentos</div></div>
+        <div class="cv-kpi"><div class="cv-kpi-v">${d.filter(x=>(x.tipo||x['tipo'])==='ficha').length}</div><div class="cv-kpi-l">Fichas vet.</div></div>
+        <div class="cv-kpi"><div class="cv-kpi-v">${d.filter(x=>(x.tipo||x['tipo'])==='remision').length}</div><div class="cv-kpi-l">Guías rem.</div></div>
+        <div class="cv-kpi"><div class="cv-kpi-v">${d.filter(x=>(x.tipo||x['tipo'])==='sanitario').length}</div><div class="cv-kpi-l">Cert. sanitarios</div></div>
+      </div>
+      <div class="cv-card"><div class="cv-card-body">
+      ${!d.length ? empty('Sin documentos generados') : `<div style="overflow-x:auto"><table class="cv-table">
+        <thead><tr><th>Tipo</th><th>N°</th><th>Descripción</th><th>Fecha</th><th>Hora</th></tr></thead>
+        <tbody>${d.slice(0,40).map(doc=>{
+          const tipos = {ficha:'🩺 Ficha Vet.',remision:'📋 Guía Rem.',sanitario:'📜 Cert. San.'};
+          return `<tr>
+            <td>${tipos[doc.tipo||doc['tipo']]||doc.tipo||doc['tipo']||'—'}</td>
+            <td style="font-weight:700;color:var(--accent)">${doc.num_doc||doc['numDoc']||'—'}</td>
+            <td style="max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${doc.descripcion||doc['descripcion']||'—'}</td>
+            <td>${doc.fecha||doc['fecha']||'—'}</td>
+            <td>${doc.hora||doc['hora']||'—'}</td>
+          </tr>`;
+        }).join('')}</tbody>
+      </table></div>`}
+      </div></div>`;
+    return;
+  }
+
+  cont.innerHTML = empty('Módulo no disponible');
+}
+
+// ══════════════════════════════════════
+// EXPORTAR CSV
+// ══════════════════════════════════════
+
+function exportarClientesCSV() {
+  if(!DATA.clientes.length){toast('⚠️ No hay datos para exportar');return;}
+  const headers=['Email','Rancho','Plan','Estado','Inicio','Vencimiento','Animales','Límite','Método','Monto'];
+  const rows=DATA.clientes.map(c=>[c.email||'',c.rancho_nombre||c.rancho||'',c.plan||'',c.estado||'',c.fecha_inicio?new Date(c.fecha_inicio).toLocaleDateString('es-PE'):'',c.fecha_vencimiento?new Date(c.fecha_vencimiento).toLocaleDateString('es-PE'):'',c.animales_actuales||0,c.limite_animales>=999?'Ilimitado':(c.limite_animales||''),c.metodo_pago||'',c.monto_pagado||''].map(v=>`"${String(v).replace(/"/g,'""')}"`));
+  const csv=[headers.join(','),...rows.map(r=>r.join(','))].join('\n');
+  const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url; a.download=`VaqueroApp_Clientes_${new Date().toISOString().split('T')[0]}.csv`; a.click();
+  URL.revokeObjectURL(url);
+  toast('✅ CSV descargado — '+DATA.clientes.length+' clientes');
+}
+
+</script>
+
+<!-- MOBILE BOTTOM NAV -->
+<nav class="mobile-nav" id="mobile-nav">
+  <button class="mobile-nav-item active" onclick="goAdminMobile('dashboard',this)">
+    <span class="m-ico">📊</span>
+    <span class="m-lbl">Inicio</span>
+  </button>
+  <button class="mobile-nav-item" onclick="goAdminMobile('clientes',this)">
+    <span class="m-ico">👥</span>
+    <span class="m-lbl">Clientes</span>
+  </button>
+  <button class="mobile-nav-item" onclick="goAdminMobile('suscripciones',this)">
+    <span class="m-ico">💳</span>
+    <span class="m-lbl">Planes</span>
+  </button>
+  <button class="mobile-nav-item" onclick="goAdminMobile('pagos',this)" style="position:relative">
+    <span class="m-ico">💰</span>
+    <span class="m-lbl">Pagos</span>
+    <span class="mobile-nav-badge" id="mobile-badge-pagos">0</span>
+  </button>
+  <button class="mobile-nav-item" onclick="goAdminMobile('ingresos',this)">
+    <span class="m-ico">📈</span>
+    <span class="m-lbl">Ingresos</span>
+  </button>
+  <button class="mobile-nav-item" onclick="goAdminMobile('graficas',this)">
+    <span class="m-ico">📊</span>
+    <span class="m-lbl">Gráficas</span>
+  </button>
+  <button class="mobile-nav-item" onclick="goAdminMobile('alertas',this)" style="position:relative">
+    <span class="m-ico">🔔</span>
+    <span class="m-lbl">Alertas</span>
+    <span class="mobile-nav-badge" id="mobile-badge-alertas" style="display:none">0</span>
+  </button>
+</nav>
+
+
+<!-- iOS install tip -->
+<div id="ios-install-tip" style="display:none;position:fixed;bottom:calc(70px + env(safe-area-inset-bottom));left:12px;right:12px;background:linear-gradient(135deg,#1a2a0a,#0d1a06);border:1px solid var(--accent);border-radius:14px;padding:14px 16px;z-index:150;box-shadow:0 8px 32px rgba(0,0,0,.6)">
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+    <span style="font-size:24px">🐄</span>
+    <div>
+      <div style="font-size:13px;font-weight:700;color:var(--accent)">Instalar en pantalla de inicio</div>
+      <div style="font-size:11px;color:var(--muted)">Accede como app nativa</div>
+    </div>
+    <button onclick="document.getElementById('ios-install-tip').style.display='none'" style="margin-left:auto;background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;padding:0 4px">×</button>
+  </div>
+  <div style="font-size:12px;color:var(--text);line-height:1.6">
+    1. Toca el botón <strong style="color:var(--accent)">Compartir</strong> 📤 en Safari<br>
+    2. Selecciona <strong style="color:var(--accent)">"Añadir a pantalla de inicio"</strong><br>
+    3. Toca <strong style="color:var(--accent)">Añadir</strong> — ¡listo!
+  </div>
+</div>
+
+</body>
+</html>
